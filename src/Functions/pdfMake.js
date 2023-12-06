@@ -60,7 +60,8 @@ exports.pdfReportDefinitions = function(report ){
                     text: `ESDADO DO MARANHÃO
                     SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA
                     POLÍCIA MILITAR DO MARANHÃO
-                    COMANDO DE POLICIAMENTO DO INTERIOR ÁREA 3 - CPA-1/3`
+                    COMANDO DE POLICIAMENTO DO INTERIOR ÁREA 3 - CPA-1/3
+                    ${battalion} DE POLÍCIA MILIOTAR DO MARANHÃO`
                 },
                 {
                     alignment: 'right',
@@ -68,7 +69,6 @@ exports.pdfReportDefinitions = function(report ){
                     text: 'Logo\nPMMA'
                 }  
             ]
-    
         },        
         {
             marginTop: 15 ,
@@ -142,6 +142,23 @@ exports.pdfReportDefinitions = function(report ){
             }
         },
         {
+            style: 'tableExample',
+            table:{
+                widths:'100%',
+                body:[
+                    [{text:"HISTÓRICO DA OCORRÊNCIA", fillColor: '#ccc', style: 'tableHeader'}],
+                    [{text:`MOTIVAÇÃO DA ABORDAGEM:\nABORDAGEM MOTIVADA POR FUNCADA SUSPEITA CONTRA O ABORDADO`}],
+                    [{text: `RELATO DOS FATOS:\n${data[0].history.toUpperCase()}`,}]
+                ]
+            },
+            layout:{
+                hLineWidth: function () {return 0.5},
+                vLineWidth: function () {return 0.5},
+                paddingTop: function () {return 4},
+            }
+        },
+       objects == [] || objects == null || objects ==='' ? null : 
+        {
             style: 'tableExample2',
             table:{
                 widths: '50%',
@@ -154,10 +171,10 @@ exports.pdfReportDefinitions = function(report ){
                 vLineWidth: function () {return 0.5},
                 paddingTop: function () {return 4},
             }
-        },        
-        objects.map((item, index)=>(
+        },
+        objects.map((item)=>(
             
-            item?.type === "VEÍCULO" ? 
+            item?.type === "VEÍCULOS" ? 
             {                
                 style: 'tableExample3',
                 table:{
@@ -165,7 +182,7 @@ exports.pdfReportDefinitions = function(report ){
                     body:[
                         [{text: `TIPO: ${item?.type}` }, {text: `MARCA: ${item?.brand}`},{text: `MODELO: ${item?.model}`}],
                         [{text: `CHASSIS: ${item?.chassis}`, colSpan:2, }, {},{text: `MODELO: ${item?.plate}`}],
-                        [{text: item?.stolen_recovered === true ? 'VEÍCULO FURTADO  RECUPERADO' :item?.stolen_recovered === true ? 'VEÍCULO APREENDIDO': null , colSpan:3, }, {},{}],
+                        [{text: item?.stolen_recovered === true ? 'VEÍCULO FURTADO  RECUPERADO' :item?.stolen_recovered === false ? 'VEÍCULO APREENDIDO': null , colSpan:3, }, {},{}],
                 ]
                 },
                 layout:{
@@ -318,10 +335,122 @@ exports.pdfReportDefinitions = function(report ){
                     vLineWidth: function () {return 0.5},
                     paddingTop: function () {return 4}
                 }
-            }        
+            }  
+            : item?.type === "DINHEIRO" ?
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: ['15%','20%', '*'],
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `QTD.: R$ ${item?.quantity}`},{text: `DESCRIÇÃO: ${item?.description}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }       
             :null
-
-        ))
+        )),
+        {
+            style: 'tableExample2',
+            table:{
+                widths: '50%',
+                body:[
+                    [{text: `EFETIVO EMPREGADO`, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
+            ]
+            },
+            layout:{
+                hLineWidth: function () {return 0.5},
+                vLineWidth: function () {return 0.5},
+                paddingTop: function () {return 4},
+            }
+        },
+        data[0]?.police_staff.map((item)=>(
+            item?.staff_function === 'COMANDANTE'?
+            {                
+                style: 'tableExample2',
+                table:{
+                    widths: ['28% ', '*'],
+                    body:[
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }
+            :null
+        )),
+        data[0]?.police_staff.map((item)=>(
+            item?.staff_function === 'PATRULHEIRO'?
+            {                
+                style: 'tableExample2',
+                table:{
+                    widths: ['28% ', '*'],
+                    body:[
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }
+            :null
+        )),
+        data[0]?.police_staff.map((item)=>(
+            item?.staff_function === 'APOIO'?
+            {                
+                style: 'tableExample2',
+                table:{
+                    widths: ['28% ', '*'],
+                    body:[
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }
+            :null
+        )),
+        data[0]?.police_staff.map((item)=>(
+            item?.staff_function === 'CENTRAL DE OPERAÇÕES'?
+            {                
+                style: 'tableExample2',
+                table:{
+                    widths: ['28% ', '*'],
+                    body:[
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }
+            :null
+        )),
+        {
+            text:`RECEBIDO POR:`,
+            style: 'subheader' ,
+        },
+        {
+            text: `CARGO/NOME:___________________________________________________   MATRICULA:______________   CPF:______________________\n
+            DATA: ______/______/______   HORA: _____:_____   ASSINATURA:______________________________________________________________`
+        }
         
 
       ],
@@ -332,9 +461,9 @@ exports.pdfReportDefinitions = function(report ){
             margin: [0, 0, 0, 10]
         },
         subheader: {
-            fontSize: 16,
+            fontSize: 12,
             bold: true,
-            margin: [0, 10, 0, 5]
+            margin: [0, 28, 0, 5]
         },
         tableExample: {
             margin: [0, 5, 0, 10]

@@ -2,8 +2,6 @@ const postgres = require('../../dbConfig');
 const  PDFPrinter = require('pdfmake');
 const { pdfReportDefinitions } = require('../Functions/pdfMake');
 
-
-
 exports.pdfReportGenerate = async function(req,res,err){
     console.log('RODA DE PDF');
     const battalionParam = req.params.battalion
@@ -74,11 +72,7 @@ exports.pdfReportGenerate = async function(req,res,err){
             }
         )        
     }
-
 //************************************************************************************************************
-
-
-
     const fonts = {
         Courier: {
           normal: 'Courier',
@@ -105,24 +99,17 @@ exports.pdfReportGenerate = async function(req,res,err){
           normal: 'ZapfDingbats'
         }
       };
-
     const printer = new PDFPrinter(fonts)
-    
     const docDefinitions = pdfReportDefinitions(response_array)
     const pdfDoc = printer.createPdfKitDocument(docDefinitions)
-    
     const chunks = []
-
     pdfDoc.on("data", (chunk)=>{
         chunks.push(chunk)
     })
-    
     pdfDoc.end()
-    
     pdfDoc.on("end", ()=>{
         const result = Buffer.concat(chunks)
         res.end(result)
-   
     })
     
     

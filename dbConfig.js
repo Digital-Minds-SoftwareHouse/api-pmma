@@ -1,13 +1,14 @@
 const { Pool } = require('pg')
 let postgres = new Pool({
-    host: '127.0.0.1',
-    port: 5433,
-    user:'postgres',
-    password: '123456',
-    //database:'postgres',
+    host: 'dpg-clo45dsjtl8s73ajj380-a.oregon-postgres.render.com',
+    port: 5432,
+    user: 'public_4iup_user',
+    password: 'IPgoyJkthbdnaVrldFs3jhNuGaYhHhGU',
+    ssl:true,
+    database:'public_4iup',
     connectionTimeoutMillis: 75000,
     idleTimeoutMillis: 75000,
-    maxUses: 200
+    maxUses: 100
 })
 postgres.connect().then(()=>{console.log('DB Connected');},(e)=>{console.log('DB Conection Error: ', e)})
 module.exports = postgres
