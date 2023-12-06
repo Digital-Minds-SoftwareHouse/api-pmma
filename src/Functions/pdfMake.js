@@ -18,6 +18,7 @@ exports.pdfReportDefinitions = function(report ){
     let timeFormat = `${("00" + reportDate.getHours()).slice(-2)}:${('00' + reportDate.getMinutes()).slice(-2)}`
     let policeGarison = data[0].police_garrison
     let involvedObject = data[0].envolveds
+    let objects = data[0].objects
     
     console.log(data[0]);
 
@@ -141,7 +142,7 @@ exports.pdfReportDefinitions = function(report ){
             }
         },
         {
-            style: 'tableExample',
+            style: 'tableExample2',
             table:{
                 widths: '50%',
                 body:[
@@ -153,7 +154,175 @@ exports.pdfReportDefinitions = function(report ){
                 vLineWidth: function () {return 0.5},
                 paddingTop: function () {return 4},
             }
-        }
+        },        
+        objects.map((item, index)=>(
+            
+            item?.type === "VEÍCULO" ? 
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '33.3%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `MARCA: ${item?.brand}`},{text: `MODELO: ${item?.model}`}],
+                        [{text: `CHASSIS: ${item?.chassis}`, colSpan:2, }, {},{text: `MODELO: ${item?.plate}`}],
+                        [{text: item?.stolen_recovered === true ? 'VEÍCULO FURTADO  RECUPERADO' :item?.stolen_recovered === true ? 'VEÍCULO APREENDIDO': null , colSpan:3, }, {},{}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }           
+            
+            : item?.type === "DROGAS" ?
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '33.3%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE SUBST.: ${item?.subtype}`},{text: `QUANTIDADE: ${item?.quantity}g`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }             
+            : item?.type === "ARMAS" && item?.subtype === 'PISTOLA' ? 
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '33.3%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
+                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }   
+            : item?.type === "ARMAS" && item?.subtype === 'REVOLVER' ? 
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '33.3%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
+                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            } 
+            : item?.type === "ARMAS" && item?.subtype === 'ESPINGARDA' ? 
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '33.3%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
+                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            } 
+            : item?.type === "ARMAS" && item?.subtype === 'FUZIL/CARABINA' ? 
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '33.3%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
+                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }  
+                     
+            : item?.type === "ARMAS" && item?.subtype === 'ARMA CASEIRA'  ?
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '50%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`}],
+                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }   
+            : item?.type === "ARMAS" && item?.subtype === 'ARMA BRANCA'  ?
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '50%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`}],
+                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            } 
+            : item?.type === "ARMAS" && item?.subtype === 'SIMULACRO'  ?
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: '50%',
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`}],
+                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description}`}],
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }
+            :item?.type === 'OUTROS'  ?
+            {                
+                style: 'tableExample3',
+                table:{
+                    widths: ['15% ', '*'],
+                    body:[
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.description.toUpperCase()}`}],
+                        
+                ]
+                },
+                layout:{
+                    hLineWidth: function () {return 0.5},
+                    vLineWidth: function () {return 0.5},
+                    paddingTop: function () {return 4}
+                }
+            }        
+            :null
+
+        ))
+        
 
       ],
       styles: {
@@ -170,6 +339,12 @@ exports.pdfReportDefinitions = function(report ){
         tableExample: {
             margin: [0, 5, 0, 10]
         },
+        tableExample2: {
+            margin: [0, 0, 0, 0]
+        },
+        tableExample3: {
+            margin: [0, 0, 0, 5]
+        },
         tableMultiple: {
             margin: [0, 2, 0, 6]
         },
@@ -177,7 +352,6 @@ exports.pdfReportDefinitions = function(report ){
             bold: true,
             fontSize: 9,
             color: 'black'
-            
         }
     }  
     }
