@@ -177,6 +177,7 @@ exports.pdfReportDefinitions = function(report ){
             bold: true,
             fontSize: 9,
             color: 'black'
+            
         }
     }  
     }
