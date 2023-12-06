@@ -18,6 +18,7 @@ exports.getSummaryAllReports = async function (req, res, err){
         response_array.push(
             { 
                 number_report: reports[i].number_report,
+                report_city: reports[i].report_city,
                 type_report: reports[i].type_report,
                 date_time: reports[i].date_time,
                 police_garrison: reports[i].police_garrisson,         

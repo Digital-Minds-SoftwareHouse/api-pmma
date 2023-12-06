@@ -8,21 +8,21 @@ const  PDFPrinter = require('pdfmake')
 exports.pdfReportDefinitions = function(report ){
     const data = report
 
-    let ropNumber = data[0].number_report
-    let battalion = data[0].battalion
-    let reportNatures = data[0].natures
+    let ropNumber = data[0]?.number_report
+    let battalion = data[0]?.battalion
+    let reportNatures = data[0]?.natures
     let staffCommander = ''
-    let reportCity = data[0].report_city
-    let reportDate = new Date(data[0].date_time)
+    let reportCity = data[0]?.report_city
+    let reportDate = new Date(data[0]?.date_time)
     let dateFormat = `${reportDate.getDate()}/${reportDate.getMonth()+1}/${reportDate.getFullYear()}`
     let timeFormat = `${("00" + reportDate.getHours()).slice(-2)}:${('00' + reportDate.getMinutes()).slice(-2)}`
-    let policeGarison = data[0].police_garrison
-    let involvedObject = data[0].envolveds
-    let objects = data[0].objects
+    let policeGarison = data[0]?.police_garrison
+    let involvedObject = data[0]?.envolveds
+    let objects = data[0]?.objects
     
     console.log(data[0]);
 
-    for(let k in data[0].police_staff){
+    for(let k in data[0]?.police_staff){
         if(data[0].police_staff[k]?.staff_function === 'ATENDENTE'){
             staffCommander = `${data[0].police_staff[k].graduation_rank} ${data[0].police_staff[k].war_name}`
         }
@@ -75,14 +75,14 @@ exports.pdfReportDefinitions = function(report ){
             text: `NUMERO DO ROP:  ${ropNumber} - ${battalion}` 
         },
         {
-            text: `NATUREZA(S) DA OCORRÊNCIA:  ${reportNatures.map(item=>` ${item.nature}`)}` 
+            text: `NATUREZA(S) DA OCORRÊNCIA:  ${reportNatures?.map(item=>` ${item.nature}`)}` 
         },
         {
             marginTop: 15 ,
             text: `Sr.(a) Delegado(a), eu ${staffCommander}, no dia ${dateFormat} às ${timeFormat} nesta cidade de ${reportCity}, de serviço na guarnição: ${policeGarison}. Conduzo a vossa presença nesta delegacia de polícia civil as seguintes pessoas:\n ` 
         },
 
-        involvedObject.map((item, index)=>(
+        involvedObject?.map((item, index)=>(
             
             {                
                 style: 'tableMultiple',
@@ -113,9 +113,9 @@ exports.pdfReportDefinitions = function(report ){
                 body:[
                     [{text: `INFORMAÇÕES GERAIS DA OCORRÊNCIA `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
                     [{text: `ORIGEM: `},{text: `HORÁRIO DA OCORRÊNCIA: ${timeFormat}`}],
-                    [{text: `ENDEREÇO DA OCORRÊNCIA: ${data[0].report_address.toUpperCase()} - ${data[0].report_district} `, colSpan:2}],
+                    [{text: `ENDEREÇO DA OCORRÊNCIA: ${data[0]?.report_address.toUpperCase()} - ${data[0]?.report_district} `, colSpan:2}],
                     [{text: `COORDENADAS DE GEOLOCALIZAÇÃO`, colSpan:2}],
-                    [{text: `LATITUDE: ${data[0].latitude}`},{text: `LONGITUDE: ${data[0].longitude}`}],
+                    [{text: `LATITUDE: ${data[0]?.latitude}`},{text: `LONGITUDE: ${data[0]?.longitude}`}],
                     [{text: `USO DE ALGEMA: `},{text: `JUSTIFICATIVA: `}],
             ]
             },
@@ -148,7 +148,7 @@ exports.pdfReportDefinitions = function(report ){
                 body:[
                     [{text:"HISTÓRICO DA OCORRÊNCIA", fillColor: '#ccc', style: 'tableHeader'}],
                     [{text:`MOTIVAÇÃO DA ABORDAGEM:\nABORDAGEM MOTIVADA POR FUNCADA SUSPEITA CONTRA O ABORDADO`}],
-                    [{text: `RELATO DOS FATOS:\n${data[0].history.toUpperCase()}`,}]
+                    [{text: `RELATO DOS FATOS:\n${data[0]?.history.toUpperCase()}`,}]
                 ]
             },
             layout:{
@@ -172,7 +172,7 @@ exports.pdfReportDefinitions = function(report ){
                 paddingTop: function () {return 4},
             }
         },
-        objects.map((item)=>(
+        objects?.map((item)=>(
             
             item?.type === "VEÍCULOS" ? 
             {                
