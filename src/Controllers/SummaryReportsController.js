@@ -21,7 +21,7 @@ exports.getSummaryAllReports = async function (req, res, err){
                 report_city: reports[i].report_city,
                 type_report: reports[i].type_report,
                 date_time: reports[i].date_time,
-                police_garrison: reports[i].police_garrisson,         
+                police_garrison: reports[i].police_garrison,         
                 area: reports[i].area,
                 battalion: reports[i].battalion,
                 natures: nature_array.map(item=>item),
