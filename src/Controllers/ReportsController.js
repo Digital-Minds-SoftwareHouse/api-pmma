@@ -65,7 +65,13 @@ exports.getAllReports = async function (req, res, err){
                 natures: nature_array.map(item=>item),
                 envolveds: envolved_array.map(item=>item),
                 objects: objects_array.map(item=>item),
-                police_staff: staff_array.map(item=>item)
+                police_staff: staff_array.map(item=>item),
+                use_handcuffs : reports[i].use_handcuffs,
+                justify_handcuffs : reports[i].justify_handcuffs,
+                comments : reports[i].comments,
+                upm_contact : reports[i].upm_contact,
+                motivation_approach : reports[i].motivation_approach,
+                origin : reports[i].origin
             }
         )        
     }
@@ -139,7 +145,13 @@ exports.getSpecificReport = async function (req, res, err){
                 natures: nature_array.map(item=>item),
                 envolveds: envolved_array.map(item=>item),
                 objects: objects_array.map(item=>item),
-                police_staff: staff_array.map(item=>item)
+                police_staff: staff_array.map(item=>item),
+                use_handcuffs : reports[i].use_handcuffs,
+                justify_handcuffs : reports[i].justify_handcuffs,
+                comments : reports[i].comments,
+                upm_contact : reports[i].upm_contact,
+                motivation_approach : reports[i].motivation_approach,
+                origin : reports[i].origin
             }
         )        
     }
@@ -166,15 +178,14 @@ exports.postReport = async function (req, res, err){
         //const regex = /(\d{1,2}|20[2-9][3-9])|2023/g
         const regex = /(.*?)(?:[1-9]\d)(?:202[3-9]|20[3-9]\d)$/
 
-        
         if(year_last_report === actual_year){
             let s = String(number_last_report).replace(regex, "$1")
-            Number(number_last_report = `${Number(s) + 1}${req.body.battalion}${actual_year}`)
+            number_last_report = `${Number(s) + 1}${req.body.battalion.replace(" ", "")}${actual_year}`
             return number_last_report
         }
         else if(year_last_report < actual_year){
             let d = 1   
-            Number(number_last_report = `${d}${req.body.battalion}${actual_year}`)         
+            number_last_report = `${d}${req.body.battalion}${actual_year}`      
             return number_last_report
         }
     }
@@ -200,13 +211,20 @@ exports.postReport = async function (req, res, err){
         area = req.body.area,
         battalion = req.body.battalion,
         punctuaction = majorPoints,
+        use_handcuffs = req.body.use_handcuffs,
+        justify_handcuffs = req.body.justify_handcuffs,
+        comments = req.body.comments,
+        upm_contact = req.body.upm_contact,
+        motivation_approach = req.body.motivation_approach,
+        origin = req.body.origin
     ]
-    const general_information_query = `INSERT INTO report (number_report, type_report, date_time, report_address, 
-                                       report_city, report_district, cep, police_garrison,latitude, longitude, 
-                                       history, area, battalion, punctuaction)
-                                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+    const general_information_query = `INSERT INTO report (number_report, type_report, date_time, report_address,
+                                       report_city, report_district, cep, police_garrison,latitude, longitude,
+                                       history, area, battalion, punctuaction, use_handcuffs, justify_handcuffs, 
+                                       comments, upm_contact, motivation_approach, origin )
+                                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
+                                        $16, $17, $18, $19, $20)
                                        `
-    
     async function nature_register (){        
         for(let i = 0; i < req.body.natures.length; i++){
             const natures_values = [
@@ -222,7 +240,6 @@ exports.postReport = async function (req, res, err){
                 nature_id = id_nature.rows[0].id
             ]
             const relationship_query = `INSERT INTO report_nature(number_report, nature_id) VALUES($1, $2)`
-            
             await postgres.query(relationship_query, relationship_values)
         }
     }
@@ -243,14 +260,15 @@ exports.postReport = async function (req, res, err){
                 phone_number = req.body.envolveds[i].phone_number,
                 rg = req.body.envolveds[i].rg,
                 cpf = req.body.envolveds[i].cpf,
+                profession = req.body.envolveds[i].profession,
                 particular_signs = req.body.envolveds[i].particular_signs,
                 bodily_injuries = req.body.envolveds[i].bodily_injuries
             ]
             const envolved_query = `
                 INSERT INTO envolved(  name, type_of_involvement, birthdate, mother, sex, gender,
                                         address, district, city, naturalness, race_color, 
-                                        phone_number, rg, cpf, particular_signs, bodily_injuries )
-                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                                        phone_number, rg, cpf, profession, particular_signs, bodily_injuries )
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
             `
             await postgres.query(envolved_query, envolveds_values)
 
@@ -324,7 +342,6 @@ exports.postReport = async function (req, res, err){
             await postgres.query(relationship_query, relationship_values)
         }
     }
-
     try {
         await postgres.query(general_information_query, generalInformationValue)
         nature_register()
@@ -364,11 +381,9 @@ exports.deleteReport = async function(req, res, err){
         res.status(500).send({message: "Error deleting report!"})
     }
 }
-
 exports.putReport = async function (req, res, err){
     console.log('PUT REPORTS');
     let number_report = req.body.number_report
-
 
     async function deleteRegisters(){
         const nature_key = (await postgres.query(`SELECT * FROM report_nature WHERE number_report = ${number_report}`)).rows
@@ -388,9 +403,7 @@ exports.putReport = async function (req, res, err){
         }
         for(let l = 0; l < staff_key.length; l++){
             postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`)
-        }
-
-        
+        }  
     }
     async function nature_register (){        
         for(let i = 0; i < req.body.natures.length; i++){
@@ -400,7 +413,7 @@ exports.putReport = async function (req, res, err){
             ]
             const nature_query = `INSERT INTO natures(nature, punctuaction) VALUES($1, $2)`
             await postgres.query(nature_query, natures_values).then(console.log('inserido natureza '))
-            
+
             const id_nature = await postgres.query("SELECT id FROM natures ORDER BY id DESC LIMIT 1")
             const relationship_values = [
                 number_report =  req.body.number_report,
@@ -411,7 +424,6 @@ exports.putReport = async function (req, res, err){
             await postgres.query(relationship_query, relationship_values).then(console.log("inserido ralacionamento"))
         }
     }
-
     async function envolveds_register (){
         for(let i = 0; i < req.body.envolveds.length; i++){
             const envolveds_values = [
@@ -429,14 +441,16 @@ exports.putReport = async function (req, res, err){
                 phone_number = req.body.envolveds[i].phone_number,
                 rg = req.body.envolveds[i].rg,
                 cpf = req.body.envolveds[i].cpf,
+                profession = req.body.envolveds[i].profession,
                 particular_signs = req.body.envolveds[i].particular_signs,
-                bodily_injuries = req.body.envolveds[i].bodily_injuries
+                bodily_injuries = req.body.envolveds[i].bodily_injuries,
+
             ]
             const envolved_query = `
                 INSERT INTO envolved(  name, type_of_involvement, birthdate, mother, sex, gender,
                                         address, district, city, naturalness, race_color, 
                                         phone_number, rg, cpf, particular_signs, bodily_injuries )
-                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
             `
             await postgres.query(envolved_query, envolveds_values)
 
@@ -451,7 +465,6 @@ exports.putReport = async function (req, res, err){
             await postgres.query(relationship_query, relationship_values)
         }
     }
-
     async function objects_register (){
         for( let i = 0; i < req.body.objects.length; i++){
             const objects_values = [
@@ -511,8 +524,6 @@ exports.putReport = async function (req, res, err){
             await postgres.query(relationship_query, relationship_values)
         }
     }
-   
-    
     let majorPoints = 0
     console.log("++++++",req.body.natures);
     for(let i = 0; i < req.body.natures.length; i++){
@@ -535,6 +546,12 @@ exports.putReport = async function (req, res, err){
         area = req.body.area,
         battalion = req.body.battalion,
         punctuaction = majorPoints,
+        use_handcuffs = req.body.use_handcuffs,
+        justify_handcuffs = req.body.justify_handcuffs,
+        comments = req.body.comments,
+        upm_contact = req.body.upm_contact,
+        motivation_approach = req.body.motivation_approach,
+        origin = req.body.origin
     ]
     const report_update_query = `
         UPDATE report 
@@ -542,6 +559,8 @@ exports.putReport = async function (req, res, err){
             report_city = $5, report_district = $6, cep = $7, 
             police_garrison = $8,latitude = $9, longitude = $10, 
             history = $11, area = $12, battalion = $13, punctuaction = $14
+            use_handcuffs = $15 , justify_handcuffs = $16 , comments = $17,
+            upm_contact = $18, motivation_approach = $19 , origin = $20
         WHERE number_report = $1
     `
     try {

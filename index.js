@@ -3,7 +3,6 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const app = express()
 //----------------------------------------------------------------------------------------
-
 const http = require('http')
 const port = process.env.PORT || 4000
 
@@ -21,8 +20,6 @@ server.listen(port,()=>{
 })
 
 module.exports = io
-
-
 //----------------------------------------------------------------------------------------
 const verifyJWT = require('./src/Middleware/JWTAuthMidleware')
 const UsuariosRouter = require('./src/Routes/usuarios')
