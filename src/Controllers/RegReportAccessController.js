@@ -13,14 +13,15 @@ exports.getPermission = async function (req, res, error){
 }
 exports.getBattalionRequests = async function (req, res, error){
     const battalion = req.params.battalion
-    let query = `SELECT * FROM report_permissions WHERE battalion = ${battalion} AND request_closed = false`
+    let query = `SELECT * FROM report_permissions WHERE battalion = '${battalion}' AND request_closed = false`
     const response = await postgres.query(query)
     res.status(200).send(response.rows)
 }
 exports.getOfficersRequests = async function (req, res, error){
     const userId = req.params.userId
-    let query = `SELECT * FROM report_permissions WHERE id_policial = ${userId} request_closed = false AND permission = false`
+    let query = `SELECT * FROM report_permissions WHERE id_policial = ${userId} AND request_closed = false AND permission = false`
     const response = await postgres.query(query)
+    console.log();
     res.status(200).send(response.rows)
 }
 exports.postPermission = async function(req, res, error){
@@ -44,6 +45,7 @@ exports.postPermission = async function(req, res, error){
     try {
         await postgres.query(queryPermissio, permissionValues)
         io.emit(req.body.battalion, {permission: "requested"},  ()=>console.log('permissão solicitada'))
+        console.log({message: 'permissão solicitada'});
         res.status(201).send({message: 'permissão solicitada'})
     } catch (error) {
         console.log(error);

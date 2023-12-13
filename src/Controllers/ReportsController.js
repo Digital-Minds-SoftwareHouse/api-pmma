@@ -84,7 +84,7 @@ exports.getSpecificReport = async function (req, res, err){
 
 
     console.log('ROTA DE OCORRENCIAS');
-    const reports = (await postgres.query(` SELECT * FROM report WHERE battalion = '26' AND number_report = ${reportNumberParam}`)).rows
+    const reports = (await postgres.query(` SELECT * FROM report WHERE  number_report = '${reportNumberParam}'`)).rows
 
     const reports_envolveds = (await postgres.query('SELECT * FROM report_envolved')).rows
     const envolveds = (await postgres.query('SELECT * FROM envolved')).rows
@@ -155,8 +155,7 @@ exports.getSpecificReport = async function (req, res, err){
             }
         )        
     }
-    res.status(302).send(response_array)
-    
+    res.status(302).send(response_array) 
 }
 
 exports.postReport = async function (req, res, err){
@@ -176,10 +175,11 @@ exports.postReport = async function (req, res, err){
     function set_report_number_by_year (){
         const actual_year = new Date().getFullYear()
         //const regex = /(\d{1,2}|20[2-9][3-9])|2023/g
-        const regex = /(.*?)(?:[1-9]\d)(?:202[3-9]|20[3-9]\d)$/
+        const regex = /(.*?)(?:[1-9]\d)(?:[A-Z])(?:[A-Z])(?:[A-Z])(?:202[3-9]|20[3-9]\d)$/
 
         if(year_last_report === actual_year){
             let s = String(number_last_report).replace(regex, "$1")
+            console.log('console do S: ', s)
             number_last_report = `${Number(s) + 1}${req.body.battalion.replace(" ", "")}${actual_year}`
             return number_last_report
         }
@@ -358,10 +358,10 @@ exports.postReport = async function (req, res, err){
 exports.deleteReport = async function(req, res, err){
     try {
     const number_report = req.body.number_report
-    const nature_key = (await postgres.query(`SELECT * FROM report_nature WHERE number_report = ${number_report}`)).rows
-    const envolved_key = (await postgres.query(`SELECT * FROM report_envolved WHERE number_report = ${number_report}`)).rows
-    const object_key = (await postgres.query(`SELECT * FROM report_objects WHERE number_report = ${number_report}`)).rows
-    const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = ${number_report}`)).rows
+    const nature_key = (await postgres.query(`SELECT * FROM report_nature WHERE number_report = '${number_report}'`)).rows
+    const envolved_key = (await postgres.query(`SELECT * FROM report_envolved WHERE number_report = '${number_report}'`)).rows
+    const object_key = (await postgres.query(`SELECT * FROM report_objects WHERE number_report = '${number_report}'`)).rows
+    const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = '${number_report}'`)).rows
 
     for(let i = 0; i < nature_key.length; i++){
         postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i].nature_id}`)
@@ -383,13 +383,14 @@ exports.deleteReport = async function(req, res, err){
 }
 exports.putReport = async function (req, res, err){
     console.log('PUT REPORTS');
+    //console.log(req.body);
     let number_report = req.body.number_report
 
     async function deleteRegisters(){
-        const nature_key = (await postgres.query(`SELECT * FROM report_nature WHERE number_report = ${number_report}`)).rows
-        const envolved_key = (await postgres.query(`SELECT * FROM report_envolved WHERE number_report = ${number_report}`)).rows
-        const object_key = (await postgres.query(`SELECT * FROM report_objects WHERE number_report = ${number_report}`)).rows
-        const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = ${number_report}`)).rows
+        const nature_key = (await postgres.query(`SELECT * FROM report_nature WHERE number_report = '${number_report}'`)).rows
+        const envolved_key = (await postgres.query(`SELECT * FROM report_envolved WHERE number_report = '${number_report}'`)).rows
+        const object_key = (await postgres.query(`SELECT * FROM report_objects WHERE number_report = '${number_report}'`)).rows
+        const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = '${number_report}'`)).rows
         console.log(nature_key);
         
         for(let i = 0; i < nature_key.length; i++){
@@ -421,7 +422,7 @@ exports.putReport = async function (req, res, err){
             ]
             const relationship_query = `INSERT INTO report_nature(number_report, nature_id) VALUES($1, $2)`
             
-            await postgres.query(relationship_query, relationship_values).then(console.log("inserido ralacionamento"))
+            await postgres.query(relationship_query, relationship_values).then(console.log("inserido ralacionamento NATUREZA"))
         }
     }
     async function envolveds_register (){
@@ -449,10 +450,11 @@ exports.putReport = async function (req, res, err){
             const envolved_query = `
                 INSERT INTO envolved(  name, type_of_involvement, birthdate, mother, sex, gender,
                                         address, district, city, naturalness, race_color, 
-                                        phone_number, rg, cpf, particular_signs, bodily_injuries )
+                                        phone_number, rg, cpf, profession, particular_signs, bodily_injuries )
                 VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
             `
             await postgres.query(envolved_query, envolveds_values)
+            console.log('inserindo envolvido')
 
             const id_envolved = await postgres.query("SELECT id FROM envolved ORDER BY id DESC LIMIT 1")
             const relationship_values = [
@@ -462,7 +464,8 @@ exports.putReport = async function (req, res, err){
             const relationship_query = `
                 INSERT INTO report_envolved(number_report, envolved_id) VALUES($1, $2)
             `
-            await postgres.query(relationship_query, relationship_values)
+            await postgres.query(relationship_query, relationship_values) 
+            console.log('inserindo envolvido RELACIONAMENTO')
         }
     }
     async function objects_register (){
@@ -487,6 +490,7 @@ exports.putReport = async function (req, res, err){
                 VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             `
             await postgres.query(objects_query, objects_values)
+            console.log('inserindo OBJETO ')
 
             const id_object = await postgres.query(`SELECT id FROM objects ORDER BY id DESC LIMIT 1`)
             const relationship_values = [
@@ -497,6 +501,7 @@ exports.putReport = async function (req, res, err){
                 INSERT INTO report_objects(number_report, object_id) VALUES($1, $2)
             `
             await postgres.query(relationship_query, relationship_values)
+            console.log('inserindo OBJETO RELACIONAMENTO')
         }
     }
     async function staff_register(){
@@ -512,6 +517,7 @@ exports.putReport = async function (req, res, err){
                 VALUES($1, $2, $3, $4)
             `
             await postgres.query(staff_query, staff_values)
+            console.log('inserindo STAFF ')
 
             const id_staff = await postgres.query(`SELECT id FROM police_staff ORDER BY id DESC LIMIT 1`)
             const relationship_values = [
@@ -522,6 +528,7 @@ exports.putReport = async function (req, res, err){
                 INSERT INTO report_staff(number_report, staff_id) VALUES($1, $2)
             `
             await postgres.query(relationship_query, relationship_values)
+            console.log('inserindo STAFF RELACIONAMENTO')
         }
     }
     let majorPoints = 0
@@ -558,7 +565,7 @@ exports.putReport = async function (req, res, err){
         SET type_report = $2, date_time = $3, report_address = $4, 
             report_city = $5, report_district = $6, cep = $7, 
             police_garrison = $8,latitude = $9, longitude = $10, 
-            history = $11, area = $12, battalion = $13, punctuaction = $14
+            history = $11, area = $12, battalion = $13, punctuaction = $14,
             use_handcuffs = $15 , justify_handcuffs = $16 , comments = $17,
             upm_contact = $18, motivation_approach = $19 , origin = $20
         WHERE number_report = $1

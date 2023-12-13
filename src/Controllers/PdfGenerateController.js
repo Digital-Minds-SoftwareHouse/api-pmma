@@ -5,9 +5,9 @@ const { pdfReportDefinitions } = require('../Functions/pdfMake');
 exports.pdfReportGenerate = async function(req,res,err){
     console.log('RODA DE PDF');
     const battalionParam = req.params.battalion
-    const reportNumberParam = req.params.report_number
+    const reportNumberParam = String(req.params.report_number)
 
-    const reports = (await postgres.query(` SELECT * FROM report WHERE battalion = '26 BPM' AND number_report = '126BPM2023'`)).rows
+    const reports = (await postgres.query(` SELECT * FROM report WHERE number_report = '${reportNumberParam}'`)).rows
 
     const reports_envolveds = (await postgres.query('SELECT * FROM report_envolved')).rows
     const envolveds = (await postgres.query('SELECT * FROM envolved')).rows

@@ -19,11 +19,9 @@ exports.pdfReportDefinitions = function(report ){
     let policeGarison = data[0]?.police_garrison
     let involvedObject = data[0]?.envolveds
     let objects = data[0]?.objects
-    
-    console.log(data[0]);
 
     for(let k in data[0]?.police_staff){
-        if(data[0].police_staff[k]?.staff_function === 'ATENDENTE'){
+        if(data[0].police_staff[k]?.staff_function === 'COMANDANTE'){
             staffCommander = `${data[0].police_staff[k].graduation_rank} ${data[0].police_staff[k].war_name}`
         }
     }
