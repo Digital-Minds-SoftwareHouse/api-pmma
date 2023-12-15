@@ -101,8 +101,6 @@ exports.postOfficers = async function ( req, res, err){
     const file = req.file
     console.log('File:', file.filename);
 
-    batalhao
-
     const valuesPolicial = [
         nome_completo = JSON.parse(req.body.userData).nome_completo,
         senha = hash,
