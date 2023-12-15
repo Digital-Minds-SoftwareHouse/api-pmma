@@ -101,7 +101,7 @@ exports.postOfficers = async function ( req, res, err){
     const file = req.file
     console.log('File:', file.filename);
 
-    
+    batalhao
 
     const valuesPolicial = [
         nome_completo = JSON.parse(req.body.userData).nome_completo,
@@ -145,6 +145,7 @@ exports.postOfficers = async function ( req, res, err){
         email = JSON.parse(req.body.userData).email,
         numero_telefone = JSON.parse(req.body.userData).numero_telefone,
         posto_graduacao = JSON.parse(req.body.userData).posto_graduacao,
+        batalhao = JSON.parse(req.body.userData).batalhao
     ]   
    
 
@@ -157,11 +158,11 @@ exports.postOfficers = async function ( req, res, err){
         numero_coturno,  suadeira,  gandola,  gorro,  funcao, 
         situacao_atual, rg, data_expedicao, org_emissor, cpf, numero_titulo, 
         zona, secao, rg_militar, numero_cnh, validade_cnh, banco, agencia, conta, avatar_path,
-        email, numero_telefone, posto_graduacao
+        email, numero_telefone, posto_graduacao, batalhao
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
             $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29,
-        $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
+        $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41 $42
         )
     `
     try {
