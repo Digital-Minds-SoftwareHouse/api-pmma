@@ -1,8 +1,6 @@
 const postgres = require('../../dbConfig')
 const io = require('../../index')
 
-
-
 io.on('connection', (socket) =>{
     console.log('Cliente Conectado! ID: ', socket.id);
 })
@@ -57,17 +55,18 @@ exports.patchPermission = async function (req, res, error){
     console.log({
         id : req.body?.id,
         permission : req.body?.permission,
-        request_closed : req.body?.request_closed        
+        request_closed : req.body?.request_closed  ,
+        userId: req.body?.userId      
     });
     const valuePermission = [
-        id = req.body?.id,
+        userId = req.body?.userId,
         permission = req.body?.permission,
         request_closed = req.body?.request_closed
     ]
     const queryPermission = `
         UPDATE report_permissions
         SET permission = $2, request_closed = $3
-        WHERE id = $1
+        WHERE userId = $1
     `
     try {
         await postgres.query(queryPermission, valuePermission)
