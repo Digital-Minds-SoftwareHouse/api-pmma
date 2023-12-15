@@ -8,5 +8,6 @@ router.get('/:battalion', RegReportAccessController.getBattalionRequests)
 router.get('/officerRequests/:userId', RegReportAccessController.getOfficersRequests)
 router.post('/', RegReportAccessController.postPermission)
 router.patch('/', RegReportAccessController.patchPermission)
+router.patch('/finalyReport', RegReportAccessController.patchFinalyReport)
 
 module.exports = router

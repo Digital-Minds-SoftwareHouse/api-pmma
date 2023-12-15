@@ -13,6 +13,7 @@ exports.getBattalionRequests = async function (req, res, error){
     const battalion = req.params.battalion
     let query = `SELECT * FROM report_permissions WHERE battalion = '${battalion}' AND request_closed = false`
     const response = await postgres.query(query)
+    console.log(response.rows);
     res.status(200).send(response.rows)
 }
 exports.getOfficersRequests = async function (req, res, error){
@@ -59,6 +60,44 @@ exports.patchPermission = async function (req, res, error){
         id_policial: req.body?.userId      
     });
     const valuePermission = [
+        id = req.body?.id,
+        permission = req.body?.permission,
+        request_closed = req.body?.request_closed
+    ]
+    const queryPermission = `
+        UPDATE report_permissions
+        SET permission = $2, request_closed = $3
+        WHERE id = $1
+    `
+    try {
+        await postgres.query(queryPermission, valuePermission)
+      
+            if(req.body?.permission == true && req.body?.request_closed == false){
+                io.emit(req.body?.battalion, {permission: "granted", userId: req.body.userId}, ()=>console.log('deu Certo'))
+                return res.status(200).send({"message" : 'Permissão Concedida!'})
+            } 
+            if(req.body?.permission == false && req.body?.request_closed == true){
+                io.emit(req.body?.battalion, {permission: "deined", userId: req.body.userId},  ()=>console.log('deu Errado'))
+                return res.status(200).send({"message" : 'Permissão Negada!!!!'})
+            }
+            if(req.body?.permission == false && req.body?.request_closed == false){
+                io.emit(req.body?.battalion, {permission: "closed", userId: req.body.userId},  ()=>console.log('deu Errado'))
+                return res.status(200).send({"message" : 'Permissão Negada!'})
+            }
+        
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.patchFinalyReport = async function (req, res, error){
+
+    console.log({
+        id : req.body?.id,
+        permission : req.body?.permission,
+        request_closed : req.body?.request_closed  ,
+        id_policial: req.body?.userId      
+    });
+    const valuePermission = [
         id_policial = req.body?.userId,
         permission = req.body?.permission,
         request_closed = req.body?.request_closed
@@ -76,10 +115,11 @@ exports.patchPermission = async function (req, res, error){
                 return res.status(200).send({"message" : 'Permissão Concedida!'})
             } 
             if(req.body?.permission == false && req.body?.request_closed == true){
-                io.emit(req.body?.battalion, {permission: "deined", userId: req.body.userId},  ()=>console.log('deu Errado'))
-                return res.status(200).send({"message" : 'Permissão Negada!'})
+                io.emit(req.body?.battalion, {permission: "closed", userId: req.body.userId},  ()=>console.log('rop finalizado'))
+                return res.status(200).send({"message" : 'Ocorrencia Finalizada!'})
             }
             if(req.body?.permission == false && req.body?.request_closed == false){
+                io.emit(req.body?.battalion, {permission: "closed", userId: req.body.userId},  ()=>console.log('deu Errado'))
                 return res.status(200).send({"message" : 'Permissão Negada!'})
             }
         
