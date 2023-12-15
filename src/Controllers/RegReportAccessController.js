@@ -56,17 +56,17 @@ exports.patchPermission = async function (req, res, error){
         id : req.body?.id,
         permission : req.body?.permission,
         request_closed : req.body?.request_closed  ,
-        userId: req.body?.userId      
+        id_policial: req.body?.userId      
     });
     const valuePermission = [
-        userId = req.body?.userId,
+        id_policial = req.body?.userId,
         permission = req.body?.permission,
         request_closed = req.body?.request_closed
     ]
     const queryPermission = `
         UPDATE report_permissions
         SET permission = $2, request_closed = $3
-        WHERE userId = $1
+        WHERE id_policial = $1
     `
     try {
         await postgres.query(queryPermission, valuePermission)
