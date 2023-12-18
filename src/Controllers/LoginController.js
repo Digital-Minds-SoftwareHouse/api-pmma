@@ -9,8 +9,20 @@ exports.login = async function(req, res, err){
         senha = req.body.senha
     ]
     const querySelecionaPolicial = `SELECT id_policial FROM policiais WHERE id_policial = ${credentials[0]} `
+        const query = `
+    SELECT r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial, string_agg(n.nature, ', ') AS naturezas
+    FROM report r
+    JOIN report_staff rs ON r.number_report = rs.number_report
+    JOIN police_staff ps ON rs.staff_id = ps.id
+    JOIN report_nature rn ON r.number_report = rn.number_report
+    JOIN natures n ON rn.nature_id = n.id
+    WHERE ps.id_policial = ${credentials[0]}
+    GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;
+    `
     try {
-       const responseId = await  postgres.query(querySelecionaPolicial)
+        const response = await postgres.query(query)
+        console.log(response.rowCount);
+        const responseId = await  postgres.query(querySelecionaPolicial)
         if(responseId.rowCount === 0){
             return res.status(500).send({status: 'error', message: 'CREDENCIAIS DE LOGIN INVÁLIDAS'})
         }if(responseId.rowCount === 1){
@@ -27,7 +39,10 @@ exports.login = async function(req, res, err){
                         id: responsePolicialInformações.rows[0].id_policial,
                         posto_graduacao: responsePolicialInformações.rows[0].posto_graduacao,
                         avatar: responsePolicialInformações.rows[0].avatar_path,
-                        battalion: responsePolicialInformações.rows[0].batalhao
+                        battalion: responsePolicialInformações.rows[0].batalhao,
+                        incidentsAttended: response.rowCount,
+                        generalScore: 100,
+                        availableScore: 100
                     }
                 })                    
                 }if(ress === false){

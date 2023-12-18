@@ -150,7 +150,6 @@ exports.getSpecificReport = async function (req, res, err){
             LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
             WHERE report_staff.number_report = '${reportNumberParam}'
         `)).rows
-    
         const response ={ 
             number_report: reports[0]?.number_report,
             type_report: reports[0]?.type_report,
@@ -177,11 +176,9 @@ exports.getSpecificReport = async function (req, res, err){
             objects: objects,
             police_staff: police_staff,
         }
-    
         res.status(302).send(response) 
     }
 }
-
 exports.postReport = async function (req, res, err){
     console.log('rota de post')
     console.log(req.body);

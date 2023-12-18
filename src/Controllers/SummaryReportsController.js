@@ -17,6 +17,7 @@ exports.getSummaryAllReports = async function (req, res, err){
         }
         response_array.push(
             { 
+                id: reports[i].id,
                 number_report: reports[i].number_report,
                 report_city: reports[i].report_city,
                 type_report: reports[i].type_report,
@@ -29,4 +30,21 @@ exports.getSummaryAllReports = async function (req, res, err){
         )        
     }
     res.status(302).send(response_array)
+}
+exports.reportsPerOfficer = async function (req, res, err){
+    const officerId = req.body.officerId
+    console.log(officerId);
+    const query = `
+    SELECT r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial, string_agg(n.nature, ', ') AS naturezas
+    FROM report r
+    JOIN report_staff rs ON r.number_report = rs.number_report
+    JOIN police_staff ps ON rs.staff_id = ps.id
+    JOIN report_nature rn ON r.number_report = rn.number_report
+    JOIN natures n ON rn.nature_id = n.id
+    WHERE ps.id_policial = ${officerId}
+    GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;
+    `
+    const response = await postgres.query(query)
+
+    res.status(200).send({quantity:response.rowCount, reports: response.rows})
 }

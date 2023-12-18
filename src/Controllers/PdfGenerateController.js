@@ -6,111 +6,142 @@ exports.pdfReportGenerate = async function(req,res,err){
     console.log('RODA DE PDF');
     const battalionParam = req.params.battalion
     const reportNumberParam = String(req.params.report_number)
+    
 
     const reports = (await postgres.query(` SELECT * FROM report WHERE number_report = '${reportNumberParam}'`)).rows
-
-    const reports_envolveds = (await postgres.query('SELECT * FROM report_envolved')).rows
-    const envolveds = (await postgres.query('SELECT * FROM envolved')).rows
-
-    const reports_natures = (await postgres.query('SELECT * FROM report_nature')).rows
-    const natures = (await postgres.query('SELECT * FROM natures')).rows
-
-    const reports_objects = (await postgres.query('SELECT * FROM report_objects')).rows
-    const objects = (await postgres.query('SELECT * FROM objects')).rows
-
-    const reports_staff = (await postgres.query('SELECT * FROM report_staff')).rows
-    const staff = (await postgres.query('SELECT * FROM police_staff')).rows
-
-    const response_array = []
-
-    for(let i = 0; i < reports.length; i++){
-        let envolved_array = []
-        let nature_array = []
-        let objects_array = []
-        let staff_array = []
- 
-        for(let j = 0; j < reports_envolveds.length; j++){
-            if (reports[i].number_report === reports_envolveds[j].number_report){
-                envolved_array.push(envolveds[j])
-            }          
+    if(reports.length == 0) {
+        return res.status(404).send({message: "ROP não encontrado ou não registrado"})
+    }else if (reports.length != 0){
+        const envolveds = (await postgres.query(`
+            SELECT 
+                envolved.id,
+                envolved.name,
+                envolved.type_of_involvement,
+                envolved.birthdate,
+                envolved.mother,
+                envolved.sex,
+                envolved.gender,
+                envolved.address,
+                envolved.city,
+                envolved.district,
+                envolved.naturalness,
+                envolved.race_color,
+                envolved.phone_number,
+                envolved.rg,
+                envolved.cpf,
+                envolved.particular_signs,
+                envolved.bodily_injuries,
+                envolved.profession 
+            FROM envolved
+            LEFT join report_envolved ON report_envolved.envolved_id = envolved.id
+            WHERE report_envolved.number_report = '${reportNumberParam}'    
+        `)).rows
+        const objects = (await postgres.query(`
+            SELECT 
+                objects.id,
+                objects.type,
+                objects.subtype,
+                objects.description,
+                objects.quantity,
+                objects.serial_number,
+                objects.chassis,
+                objects.brand,
+                objects.model,
+                objects.plate,
+                objects.color,
+                objects.stolen_recovered,
+                objects.caliber
+            FROM objects
+            LEFT JOIN report_objects ON report_objects.object_id = objects.id
+            WHERE report_objects.number_report = '${reportNumberParam}'
+        
+        `)).rows
+        const natures = (await postgres.query(`
+            SELECT 
+                natures.id,
+                natures.nature,
+                natures.punctuaction
+            FROM natures
+            LEFT JOIN report_nature ON report_nature.nature_id = natures.id
+            WHERE report_nature.number_report = '${reportNumberParam}'    
+        `)).rows
+        const police_staff = (await postgres.query(`
+            SELECT 
+                police_staff.id,
+                police_staff.war_name,
+                police_staff.graduation_rank,
+                police_staff.id_policial,
+                police_staff.staff_function
+            FROM police_staff
+            LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
+            WHERE report_staff.number_report = '${reportNumberParam}'
+        `)).rows
+        const response ={ 
+            number_report: reports[0]?.number_report,
+            type_report: reports[0]?.type_report,
+            date_time: reports[0]?.date_time,
+            report_address: reports[0]?.report_address,
+            report_district: reports[0]?.report_district,
+            report_city: reports[0]?.report_city,
+            cep: reports[0]?.cep,
+            police_garrison: reports[0]?.police_garrisson,
+            latitude: reports[0]?.latitude,
+            longitude: reports[0]?.longitude,
+            history: reports[0]?.history,
+            area: reports[0]?.area,
+            battalion: reports[0]?.battalion,
+            punctuaction: reports[0]?.punctuaction,
+            use_handcuffs : reports[0]?.use_handcuffs,
+            justify_handcuffs : reports[0]?.justify_handcuffs,
+            comments : reports[0]?.comments,
+            upm_contact : reports[0]?.upm_contact,
+            motivation_approach : reports[0]?.motivation_approach,
+            origin : reports[0]?.origin,
+            natures: natures,
+            envolveds: envolveds,
+            objects: objects,
+            police_staff: police_staff,
         }
-        for(let k = 0; k < reports_natures.length; k++ ){
-            if(reports[i].number_report === reports_natures[k].number_report){
-                nature_array.push(natures[k])
-            }
-        }
-        for(let l = 0; l < reports_objects.length; l++){
-            if(reports[i].number_report === reports_objects[l].number_report){
-                objects_array.push(objects[l])
-            }
-        }
-        for(let m = 0; m < reports_staff.length; m++){
-            if(reports[i].number_report === reports_staff[m].number_report){
-                staff_array.push(staff[m])
-            }
-        }
-        response_array.push(
-            { 
-                number_report: reports[i].number_report,
-                type_report: reports[i].type_report,
-                date_time: reports[i].date_time,
-                report_address: reports[i].report_address,
-                report_district: reports[i].report_district,
-                report_city: reports[i].report_city,
-                cep: reports[i].cep,
-                police_garrison: reports[i].police_garrison,
-                latitude: reports[i].latitude,
-                longitude: reports[i].longitude,
-                history: reports[i].history,
-                area: reports[i].area,
-                battalion: reports[i].battalion,
-                punctuaction: reports[i].punctuaction,
-                natures: nature_array.map(item=>item),
-                envolveds: envolved_array.map(item=>item),
-                objects: objects_array.map(item=>item),
-                police_staff: staff_array.map(item=>item)
-            }
-        )        
+        //************************************************************************************************************
+            const fonts = {
+                Courier: {
+                  normal: 'Courier',
+                  bold: 'Courier-Bold',
+                  italics: 'Courier-Oblique',
+                  bolditalics: 'Courier-BoldOblique'
+                },
+                Helvetica: {
+                  normal: 'Helvetica',
+                  bold: 'Helvetica-Bold',
+                  italics: 'Helvetica-Oblique',
+                  bolditalics: 'Helvetica-BoldOblique'
+                },
+                Times: {
+                  normal: 'Times-Roman',
+                  bold: 'Times-Bold',
+                  italics: 'Times-Italic',
+                  bolditalics: 'Times-BoldItalic'
+                },
+                Symbol: {
+                  normal: 'Symbol'
+                },
+                ZapfDingbats: {
+                  normal: 'ZapfDingbats'
+                }
+              };
+            const printer = new PDFPrinter(fonts)
+            const docDefinitions = pdfReportDefinitions(response)
+            const pdfDoc = printer.createPdfKitDocument(docDefinitions)
+            const chunks = []
+            pdfDoc.on("data", (chunk)=>{
+                chunks.push(chunk)
+            })
+            pdfDoc.end()
+            pdfDoc.on("end", ()=>{
+                const result = Buffer.concat(chunks)
+                res.end(result)
+            })         
     }
-//************************************************************************************************************
-    const fonts = {
-        Courier: {
-          normal: 'Courier',
-          bold: 'Courier-Bold',
-          italics: 'Courier-Oblique',
-          bolditalics: 'Courier-BoldOblique'
-        },
-        Helvetica: {
-          normal: 'Helvetica',
-          bold: 'Helvetica-Bold',
-          italics: 'Helvetica-Oblique',
-          bolditalics: 'Helvetica-BoldOblique'
-        },
-        Times: {
-          normal: 'Times-Roman',
-          bold: 'Times-Bold',
-          italics: 'Times-Italic',
-          bolditalics: 'Times-BoldItalic'
-        },
-        Symbol: {
-          normal: 'Symbol'
-        },
-        ZapfDingbats: {
-          normal: 'ZapfDingbats'
-        }
-      };
-    const printer = new PDFPrinter(fonts)
-    const docDefinitions = pdfReportDefinitions(response_array)
-    const pdfDoc = printer.createPdfKitDocument(docDefinitions)
-    const chunks = []
-    pdfDoc.on("data", (chunk)=>{
-        chunks.push(chunk)
-    })
-    pdfDoc.end()
-    pdfDoc.on("end", ()=>{
-        const result = Buffer.concat(chunks)
-        res.end(result)
-    })
     
     
 

@@ -5,6 +5,7 @@ const ReportController = require('../Controllers/ReportsController')
 const SummaryReportsCOntroller = require('../Controllers/SummaryReportsController')
 
 router.get('/', ReportController.getAllReports)
+router.get('/summary_reports_officer' , SummaryReportsCOntroller.reportsPerOfficer)
 router.get('/:battalion/:number_report', ReportController.getSpecificReport)
 router.get('/summary_reports', SummaryReportsCOntroller.getSummaryAllReports )
 router.post('/', ReportController.postReport)

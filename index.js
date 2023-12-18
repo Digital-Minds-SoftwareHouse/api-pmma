@@ -29,6 +29,7 @@ const PasswordRedefineRouter = require('./src/Routes/redefinirSenha')
 const ReportsRouter = require('./src/Routes/reports')
 const RegiterReportAccessRouter = require('./src/Routes/RegisterReportAccess')
 const PdfGenerateRouter = require('./src/Routes/pdfGenerate')
+const ReportsQuantityRouter = require('./src/Routes/reportsQuantity')
 
 
 //app.use(cors())
@@ -49,6 +50,7 @@ app.use(express.static('./src/FileStorage/UserImages'))
 app.use('/reports', ReportsRouter)
 app.use('/permission', RegiterReportAccessRouter)
 app.use('/pdf_generate', PdfGenerateRouter)
+app.use('/reportsQuantity', ReportsQuantityRouter )
 module.exports = app
 
 
