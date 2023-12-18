@@ -35,7 +35,7 @@ exports.reportsPerOfficer = async function (req, res, err){
     const officerId = req.body.officerId
     console.log(officerId);
     const query = `
-    SELECT r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial, string_agg(n.nature, ', ') AS naturezas
+    SELECT r.id, r.number_report, r.battalion ,r.date_time, r.report_city, r.police_garrison, ps.id_policial, string_agg(n.nature, ', ') AS naturezas
     FROM report r
     JOIN report_staff rs ON r.number_report = rs.number_report
     JOIN police_staff ps ON rs.staff_id = ps.id
