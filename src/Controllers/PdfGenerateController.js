@@ -4,11 +4,11 @@ const { pdfReportDefinitions } = require('../Functions/pdfMake');
 
 exports.pdfReportGenerate = async function(req,res,err){
     console.log('RODA DE PDF');
-    const battalionParam = req.params.battalion
-    const reportNumberParam = String(req.params.report_number)
-    
+    let battalionParam = new String(req.params.battalion)
+    let reportNumberParam = req.params.report_number
 
-    const reports = (await postgres.query(` SELECT * FROM report WHERE number_report = '${reportNumberParam}'`)).rows
+    console.log('ROTA DE OCORRENCIAS');
+    const reports = (await postgres.query(` SELECT * FROM report WHERE  number_report = '${reportNumberParam}'`)).rows
     if(reports.length == 0) {
         return res.status(404).send({message: "ROP não encontrado ou não registrado"})
     }else if (reports.length != 0){
@@ -84,7 +84,7 @@ exports.pdfReportGenerate = async function(req,res,err){
             report_district: reports[0]?.report_district,
             report_city: reports[0]?.report_city,
             cep: reports[0]?.cep,
-            police_garrison: reports[0]?.police_garrisson,
+            police_garrison: reports[0]?.police_garrison,
             latitude: reports[0]?.latitude,
             longitude: reports[0]?.longitude,
             history: reports[0]?.history,

@@ -7,22 +7,22 @@ const  PDFPrinter = require('pdfmake')
 
 exports.pdfReportDefinitions = function(report ){
     const data = report
-
-    let ropNumber = data[0]?.number_report
-    let battalion = data[0]?.battalion
-    let reportNatures = data[0]?.natures
+    console.log(data);
+    let ropNumber = data?.number_report
+    let battalion = data?.battalion
+    let reportNatures = data?.natures
     let staffCommander = ''
-    let reportCity = data[0]?.report_city
-    let reportDate = new Date(data[0]?.date_time)
+    let reportCity = data?.report_city
+    let reportDate = new Date(data?.date_time)
     let dateFormat = `${reportDate.getDate()}/${reportDate.getMonth()+1}/${reportDate.getFullYear()}`
     let timeFormat = `${("00" + reportDate.getHours()).slice(-2)}:${('00' + reportDate.getMinutes()).slice(-2)}`
-    let policeGarison = data[0]?.police_garrison
-    let involvedObject = data[0]?.envolveds
-    let objects = data[0]?.objects
+    let policeGarison = data?.police_garrison
+    let involvedObject = data?.envolveds
+    let objects = data?.objects
 
-    for(let k in data[0]?.police_staff){
-        if(data[0].police_staff[k]?.staff_function === 'COMANDANTE'){
-            staffCommander = `${data[0].police_staff[k].graduation_rank} ${data[0].police_staff[k].war_name}`
+    for(let k in data?.police_staff){
+        if(data.police_staff[k]?.staff_function === 'COMANDANTE'){
+            staffCommander = `${data.police_staff[k].graduation_rank} ${data.police_staff[k].war_name}`
         }
     }
 
@@ -111,9 +111,9 @@ exports.pdfReportDefinitions = function(report ){
                 body:[
                     [{text: `INFORMAÇÕES GERAIS DA OCORRÊNCIA `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
                     [{text: `ORIGEM: `},{text: `HORÁRIO DA OCORRÊNCIA: ${timeFormat}`}],
-                    [{text: `ENDEREÇO DA OCORRÊNCIA: ${data[0]?.report_address.toUpperCase()} - ${data[0]?.report_district} `, colSpan:2}],
+                    [{text: `ENDEREÇO DA OCORRÊNCIA: ${data?.report_address.toUpperCase()} - ${data?.report_district} `, colSpan:2}],
                     [{text: `COORDENADAS DE GEOLOCALIZAÇÃO`, colSpan:2}],
-                    [{text: `LATITUDE: ${data[0]?.latitude}`},{text: `LONGITUDE: ${data[0]?.longitude}`}],
+                    [{text: `LATITUDE: ${data?.latitude}`},{text: `LONGITUDE: ${data?.longitude}`}],
                     [{text: `USO DE ALGEMA: `},{text: `JUSTIFICATIVA: `}],
             ]
             },
@@ -146,7 +146,7 @@ exports.pdfReportDefinitions = function(report ){
                 body:[
                     [{text:"HISTÓRICO DA OCORRÊNCIA", fillColor: '#ccc', style: 'tableHeader'}],
                     [{text:`MOTIVAÇÃO DA ABORDAGEM:\nABORDAGEM MOTIVADA POR FUNCADA SUSPEITA CONTRA O ABORDADO`}],
-                    [{text: `RELATO DOS FATOS:\n${data[0]?.history.toUpperCase()}`,}]
+                    [{text: `RELATO DOS FATOS:\n${data?.history.toUpperCase()}`,}]
                 ]
             },
             layout:{
@@ -365,7 +365,7 @@ exports.pdfReportDefinitions = function(report ){
                 paddingTop: function () {return 4},
             }
         },
-        data[0]?.police_staff.map((item)=>(
+        data?.police_staff.map((item)=>(
             item?.staff_function === 'COMANDANTE'?
             {                
                 style: 'tableExample2',
@@ -384,7 +384,7 @@ exports.pdfReportDefinitions = function(report ){
             }
             :null
         )),
-        data[0]?.police_staff.map((item)=>(
+        data?.police_staff.map((item)=>(
             item?.staff_function === 'PATRULHEIRO'?
             {                
                 style: 'tableExample2',
@@ -403,7 +403,7 @@ exports.pdfReportDefinitions = function(report ){
             }
             :null
         )),
-        data[0]?.police_staff.map((item)=>(
+        data?.police_staff.map((item)=>(
             item?.staff_function === 'APOIO'?
             {                
                 style: 'tableExample2',
@@ -422,7 +422,7 @@ exports.pdfReportDefinitions = function(report ){
             }
             :null
         )),
-        data[0]?.police_staff.map((item)=>(
+        data?.police_staff.map((item)=>(
             item?.staff_function === 'CENTRAL DE OPERAÇÕES'?
             {                
                 style: 'tableExample2',
