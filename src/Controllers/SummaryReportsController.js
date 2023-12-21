@@ -10,9 +10,11 @@ exports.getSummaryAllReports = async function (req, res, err){
     JOIN natures n ON rn.nature_id = n.id
     GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;
     `
+    const query2 = `SELECT * FROM report`    
+    
     const response = await postgres.query(query)
-
-    res.status(200).send({quantity:response.rowCount, reports: response.rows})
+    const responseQuantity = await postgres.query(query2)
+    res.status(200).send({quantity:responseQuantity.rowCount, reports: response.rows})
 
 }
 exports.reportsPerOfficer = async function (req, res, err){

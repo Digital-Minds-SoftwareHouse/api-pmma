@@ -158,7 +158,7 @@ exports.getSpecificReport = async function (req, res, err){
             report_district: reports[0]?.report_district,
             report_city: reports[0]?.report_city,
             cep: reports[0]?.cep,
-            police_garrison: reports[0]?.police_garrisson,
+            police_garrison: reports[0]?.police_garrison,
             latitude: reports[0]?.latitude,
             longitude: reports[0]?.longitude,
             history: reports[0]?.history,
