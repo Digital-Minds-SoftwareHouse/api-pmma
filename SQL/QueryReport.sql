@@ -1,7 +1,7 @@
 CREATE TABLE
     report(
         id SERIAL,
-        number_report VARCHAR(15) PRIMARY KEY,
+        number_report VARCHAR(60) PRIMARY KEY,
         type_report VARCHAR(100),
         date_time TIMESTAMP,
         report_address VARCHAR(300),
@@ -14,17 +14,11 @@ CREATE TABLE
         history TEXT,
         area VARCHAR(50),
         battalion VARCHAR(20),
-        punctuaction INTEGER,
-      	use_handcuffs BOOLEAN,
-      	justify_handcuffs TEXT,
-      	comments TEXT,
-      	upm_contact VARCHAR(300),
-      	motivation_approach TEXT,
-      	origin VARCHAR(300)
+        punctuaction INTEGER
     );
 CREATE TABLE
     envolved(
-        id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY REFERENCES report_envolved(envolved_id) ON DELETE CASCADE,
         name VARCHAR(200),
         type_of_involvement VARCHAR(50),
         birthdate TIMESTAMP,
@@ -33,29 +27,28 @@ CREATE TABLE
         gender VARCHAR(20),
         address VARCHAR(200),
         city VARCHAR(100),
-      	district VARCHAR(150)
+      	district VARCHAR(150),
         naturalness VARCHAR(100),
         race_color VARCHAR(30),
         phone_number VARCHAR(30),
         rg BIGINT,
         cpf VARCHAR(30),
-      	profession VARCHAR(300),
         particular_signs TEXT,
         bodily_injuries TEXT
     );
 CREATE TABLE
     natures(
-        id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY REFERENCES report_nature(nature_id) ON DELETE CASCADE,
         nature VARCHAR(100),
         punctuaction INTEGER
     );
 CREATE TABLE
-    objects(
-        id SERIAL PRIMARY KEY,
+    objectssss(
+        id SERIAL PRIMARY KEY REFERENCES report_objects(object_id) ON DELETE CASCADE,
         type VARCHAR(50),
         subtype VARCHAR(50),
         description VARCHAR(200),
-        quantity FLOAT,
+        quantity VARCHAR(100),
         serial_number VARCHAR(100),
         chassis VARCHAR(100),
         brand VARCHAR(100),
@@ -67,7 +60,7 @@ CREATE TABLE
     );
 CREATE TABLE
     police_staff(
-        id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY REFERENCES report_staff(staff_id)  ON DELETE CASCADE,
         war_name VARCHAR(150),
         graduation_rank VARCHAR(20),
         id_policial INTEGER,
@@ -87,26 +80,26 @@ CREATE TABLE
 CREATE TABLE
     report_nature(
         id SERIAL PRIMARY KEY,
-        number_report VARCHAR(15) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
-        nature_id INTEGER REFERENCES natures(id) ON DELETE CASCADE
+        number_report VARCHAR(60) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
+        nature_id INTEGER REFERENCES natures(id) ON DELETE ON UPDATE CASCADE
     );
 CREATE TABLE
     report_envolved(
         id SERIAL PRIMARY KEY,
-        number_report VARCHAR(15) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
-        envolved_id INTEGER REFERENCES envolved(id) ON DELETE CASCADE
+        number_report VARCHAR(60) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
+        envolved_id INTEGER REFERENCES envolved(id) ON DELETE ON UPDATE CASCADE
     );
 CREATE TABLE
     report_objects(
         id SERIAL PRIMARY KEY,
-        number_report VARCHAR(15) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
-        object_id INTEGER REFERENCES objects(id) ON DELETE CASCADE
+        number_report VARCHAR(60) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
+        object_id INTEGER REFERENCES objects(id) ON DELETE ON UPDATE CASCADE
     );
 CREATE TABLE
-    report_satff(
+    report_staff(
         id SERIAL PRIMARY KEY,
-        number_report VARCHAR(15) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
-        staff_id INTEGER REFERENCES police_staff(id) ON DELETE CASCADE
+        number_report VARCHAR(60) REFERENCES report(number_report) ON DELETE CASCADE ON UPDATE CASCADE,
+        staff_id INTEGER REFERENCES police_staff(id) ON DELETE ON UPDATE CASCADE
 
     );
 CREATE TABLE

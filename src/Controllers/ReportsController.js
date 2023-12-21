@@ -379,24 +379,48 @@ exports.postReport = async function (req, res, err){
 exports.deleteReport = async function(req, res, err){
     try {
     const number_report = req.body.number_report
-    const nature_key = (await postgres.query(`SELECT * FROM report_nature WHERE number_report = '${number_report}'`)).rows
-    const envolved_key = (await postgres.query(`SELECT * FROM report_envolved WHERE number_report = '${number_report}'`)).rows
-    const object_key = (await postgres.query(`SELECT * FROM report_objects WHERE number_report = '${number_report}'`)).rows
-    const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = '${number_report}'`)).rows
+    const nature_key = (await postgres.query(`
+        SELECT 
+            natures.id
+        FROM natures
+        LEFT JOIN report_nature ON report_nature.nature_id = natures.id
+        WHERE report_nature.number_report = '${number_report}'    
+    `)).rows
+    const envolved_key = (await postgres.query(`
+        SELECT 
+        envolved.id
+        FROM envolved
+        LEFT join report_envolved ON report_envolved.envolved_id = envolved.id
+        WHERE report_envolved.number_report = '${number_report}'  
+    `)).rows
+    const object_key = (await postgres.query(`
+        SELECT 
+            objects.id
+        FROM objects
+        LEFT JOIN report_objects ON report_objects.object_id = objects.id
+        WHERE report_objects.number_report = '${number_report}' 
+    `)).rows
+    const staff_key = (await postgres.query(`
+        SELECT 
+            police_staff.id
+        FROM police_staff
+        LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
+        WHERE report_staff.number_report = '${number_report}'
+    `)).rows
 
-    for(let i = 0; i < nature_key.length; i++){
-        postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i].nature_id}`)
+    for(let i = 0; i < nature_key?.length; i++){
+        postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i]?.id}`)
     }
-    for(let j = 0; j < envolved_key.length; j++){
-        postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j].envolved_id}`)
+    for(let j = 0; j < envolved_key?.length; j++){
+        postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j]?.id}`)
     }
-    for(let k = 0; k < object_key.length; k++){
-        postgres.query(`DELETE FROM objects WHERE id = ${object_key[k].object_id}`)
+    for(let k = 0; k < object_key?.length; k++){
+        postgres.query(`DELETE FROM objects WHERE id = ${object_key[k]?.id}`)
     }
-    for(let l = 0; l < staff_key.length; l++){
-        postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`)
+    for(let l = 0; l < staff_key?.length; l++){
+        postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l]?.id}`)
     }
-    postgres.query(`DELETE FROM report WHERE number_report = ${number_report}`)
+    postgres.query(`DELETE FROM report WHERE number_report = '${number_report}'`)
         res.status(201).send({message: "Deleting report success!", id: number_report})
     } catch (error) {
         res.status(500).send({message: "Error deleting report!"})
