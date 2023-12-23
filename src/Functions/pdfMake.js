@@ -1,9 +1,10 @@
 const  PDFPrinter = require('pdfmake')
+const fs = require('fs');
+const path = require('path')
 
 /*
  * @param {Object} report 
 */
-
 
 exports.pdfReportDefinitions = function(report ){
     const data = report
@@ -20,9 +21,17 @@ exports.pdfReportDefinitions = function(report ){
     let involvedObject = data?.envolveds
     let objects = data?.objects
 
+    const pmmaImageRelativePath = '../FileStorage/UserImages/pmmaLogo.png';
+    const pmmaImagePath = path.join(__dirname, pmmaImageRelativePath)    
+    const pmmaLogo = fs.readFileSync(pmmaImagePath).toString('base64');
+
+    const bpm26ImageRelativePath = '../FileStorage/UserImages/logoCPAI3.png';
+    const bpm26ImagePath = path.join(__dirname, bpm26ImageRelativePath)    
+    const bpm26Logo = fs.readFileSync(bpm26ImagePath).toString('base64');
+
     for(let k in data?.police_staff){
         if(data.police_staff[k]?.staff_function === 'COMANDANTE'){
-            staffCommander = `${data.police_staff[k].graduation_rank} ${data.police_staff[k].war_name}`
+            staffCommander = `${data.police_staff[k].graduation_rank} ${data.police_staff[k].war_name} CPF: 000.000.000-00`
         }
     }
 
@@ -37,7 +46,7 @@ exports.pdfReportDefinitions = function(report ){
             orientation: 'landscape',
             pageMargins: 25,
             defaultStyle: {
-                font: 'Times',
+                font: 'Helvetica',
                 lineHeight:1.3,
                 fontSize: 9,
                 bold: false, 
@@ -47,27 +56,25 @@ exports.pdfReportDefinitions = function(report ){
         {
             columns:[
                 {
-                    alignment: 'left',
-                    width: '15%',
-                    text: 'Logo\nBatalhão',
+                    image: `data:image/png;base64,${bpm26Logo}`,
+                    width: 43,
+                    alignment: 'right'          
                 },
                 {
-                    width: '70%',
+                    width: '82%',
                     fontSize: 9,
                     alignment: 'center',
                     text: `ESDADO DO MARANHÃO
                     SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA
                     POLÍCIA MILITAR DO MARANHÃO
-                    COMANDO DE POLICIAMENTO DO INTERIOR ÁREA 3 - CPA-1/3
-                    ${battalion} DE POLÍCIA MILIOTAR DO MARANHÃO`
+                    COMANDO DE POLICIAMENTO DO INTERIOR ÁREA 3 - CPA-1/3`
                 },
                 {
-                    alignment: 'right',
-                    width: '15%',
-                    text: 'Logo\nPMMA'
-                }  
+                    image: `data:image/png;base64,${pmmaLogo}`,
+                    width: 60         
+                } ,
             ]
-        },        
+        },
         {
             marginTop: 15 ,
             text: `NUMERO DO ROP:  ${ropNumber} - ${battalion}` 
@@ -77,22 +84,21 @@ exports.pdfReportDefinitions = function(report ){
         },
         {
             marginTop: 15 ,
-            text: `Sr.(a) Delegado(a), eu ${staffCommander}, no dia ${dateFormat} às ${timeFormat} nesta cidade de ${reportCity}, de serviço na guarnição: ${policeGarison}. Conduzo a vossa presença nesta delegacia de polícia civil as seguintes pessoas:\n ` 
+            text: `SR.(A) DELEGADO(A), EU ${staffCommander.toUpperCase()}, NO DIA ${dateFormat} ÀS ${timeFormat} NESTA CIDADE DE ${reportCity}, DE SERVIÇO NA GUARNIÇÃO: ${policeGarison}. CONDUZO A VOSSA PRESENÇA NESTA DELEGACIA DE POLÍCIA CIVIL AS SEGUINTES PESSOAS:\n ` 
         },
 
-        involvedObject?.map((item, index)=>(
-            
+        involvedObject?.map((item, index)=>(            
             {                
                 style: 'tableMultiple',
                 table:{
                     widths: '33.3%',
                     body:[
-                        [{text: `PESSOA ${("000" + (index+1)).slice(-3)}: ${item.type_of_involvement}`, colSpan:3, fillColor: '#ccc'}, {},{}],
-                        [{text: `NOME:  ${item.name}`, colSpan:2}, {text: ``}, {text: `RAÇA/COR: ${item.race_color}`}],
-                        [{text: `SEXO: ${item.sex}`},{text: `GÊNERO: ${item.gender}`},{text: 'PROFISSÃO: '}],
-                        [{text: `IDENTIDADE:  ${item.rg}`},{text: `C.P.F.: ${item.cpf} ` },{text: `TELEFONE: ${item.phone_number}`}],
-                        [{text: `NASCIMENTO:  ${dateBrFormat(item.birthdate)}`},{text: `NOME DA MÃE:${item.mother}`, colSpan:2}],
-                        [{text: `NATURAL DE: ${item.naturalness}`},{text: `ENDEREÇO: ${item.address}`},{text: `ENDEREÇO: ${item.city}`}],
+                        [{text: `PESSOA ${("000" + (index+1)).slice(-3)}: ${item.type_of_involvement}`, colSpan:3, fillColor: '#ccc',style: 'tableHeader'}, {},{}],
+                        [{text: `NOME:  ${item.name.toUpperCase()}`, colSpan:2}, {text: ``}, {text: `RAÇA/COR: ${item.race_color.toUpperCase()}`}],
+                        [{text: `SEXO: ${item.sex.toUpperCase()}`},{text: `GÊNERO: ${item.gender.toUpperCase()}`},{text: `PROFISSÃO: ${item?.profession ? item.profession : "- - - - - - - - -"}`}],
+                        [{text: `IDENTIDADE:  ${item.rg ? item.rg.toUpperCase(): "- - - - - - - - -"}`},{text: `C.P.F.: ${item.cpf ? item.cpf.toUpperCase() : "- - - - - - - - -"} ` },{text: `TELEFONE: ${item.phone_number ? item.phone_number.toUpperCase(): "- - - - - - - - -"}`}],
+                        [{text: `NASCIMENTO:  ${item.birthdate ? dateBrFormat(item.birthdate) : "- - - - - - - - -"}`},{text: `NOME DA MÃE:${item.mother ? item.mother.toUpperCase() : "- - - - - - - - -"}`, colSpan:2}],
+                        [{text: `NATURAL DE: ${item.naturalness ? item.naturalness.toUpperCase() : "- - - - - - - - -"}`},{text: `ENDEREÇO: ${item.address ? item.address.toUpperCase() : "- - - - - - - - -" }`},{text: `CIDADE: ${item.city ? item.city.toUpperCase() : "- - - - - - - - -"}`}],
                         [{text: `SINAIS PARTICULARES: ${item.particular_signs ? item.particular_signs : 'SEM SINAIS PARTICULARES' }`, colSpan:3}],
                         [{text: `LESÕES CORPORAIS: ${item.bodily_injuries ? item.bodily_injuries : 'SEM LESÕES CORPORAIS' }`, colSpan:3}],
                 ]
@@ -110,11 +116,11 @@ exports.pdfReportDefinitions = function(report ){
                 widths: '50%',
                 body:[
                     [{text: `INFORMAÇÕES GERAIS DA OCORRÊNCIA `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
-                    [{text: `ORIGEM: `},{text: `HORÁRIO DA OCORRÊNCIA: ${timeFormat}`}],
-                    [{text: `ENDEREÇO DA OCORRÊNCIA: ${data?.report_address.toUpperCase()} - ${data?.report_district} `, colSpan:2}],
+                    [{text: `ORIGEM: ${data.origin} `},{text: `HORÁRIO DA OCORRÊNCIA: ${timeFormat}`}],
+                    [{text: `ENDEREÇO DA OCORRÊNCIA: ${data?.report_address.toUpperCase()} - ${data?.report_district.toUpperCase()} `, colSpan:2}],
                     [{text: `COORDENADAS DE GEOLOCALIZAÇÃO`, colSpan:2}],
                     [{text: `LATITUDE: ${data?.latitude}`},{text: `LONGITUDE: ${data?.longitude}`}],
-                    [{text: `USO DE ALGEMA: `},{text: `JUSTIFICATIVA: `}],
+                    [{text: `USO DE ALGEMA: ${data.usehandcuffs ? "SIM" : "NÃO" } `},{text: `JUSTIFICATIVA: ${data.justify_handcuffs ? data.justify_handcuffs : "- - - - - - - - -" }`}],
             ]
             },
             layout:{
@@ -129,8 +135,8 @@ exports.pdfReportDefinitions = function(report ){
                 widths: '50%',
                 body:[
                     [{text: `INFORMAÇÕES ADCIONAIS `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
-                    [{text: `OBSERVAÇÕES: `, colSpan:2},{}],
-                    [{text: `CONTATO DA UPM:  `, colSpan:2}],
+                    [{text: `OBSERVAÇÕES:  ${data?.commments ? data.comments : "- - - - - - - - -"}`, colSpan:2},{}],
+                    [{text: `CONTATO DA UPM: E-mail: 26bpm.adm@gmail.com, FONE: (99) 9 9168-3433`, colSpan:2}],
             ]
             },
             layout:{
@@ -145,7 +151,7 @@ exports.pdfReportDefinitions = function(report ){
                 widths:'100%',
                 body:[
                     [{text:"HISTÓRICO DA OCORRÊNCIA", fillColor: '#ccc', style: 'tableHeader'}],
-                    [{text:`MOTIVAÇÃO DA ABORDAGEM:\nABORDAGEM MOTIVADA POR FUNCADA SUSPEITA CONTRA O ABORDADO`}],
+                    [{text:`MOTIVAÇÃO DA ABORDAGEM:\n${data.motivation_approach ? data.motivation_approach : "- - - - - - - - -"}`}],
                     [{text: `RELATO DOS FATOS:\n${data?.history.toUpperCase()}`,}]
                 ]
             },
@@ -155,13 +161,13 @@ exports.pdfReportDefinitions = function(report ){
                 paddingTop: function () {return 4},
             }
         },
-       objects == [] || objects == null || objects ==='' ? null : 
+       objects == ![] || objects == !null || objects == !'' ? null :
         {
             style: 'tableExample2',
             table:{
                 widths: '50%',
                 body:[
-                    [{text: `OBJETOS APREENDIDOS `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
+                    [{text: `OBJETOS APREENDIDOS `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}]
             ]
             },
             layout:{
@@ -179,7 +185,7 @@ exports.pdfReportDefinitions = function(report ){
                     widths: '33.3%',
                     body:[
                         [{text: `TIPO: ${item?.type}` }, {text: `MARCA: ${item?.brand}`},{text: `MODELO: ${item?.model}`}],
-                        [{text: `CHASSIS: ${item?.chassis}`, colSpan:2, }, {},{text: `MODELO: ${item?.plate}`}],
+                        [{text: `CHASSIS: ${item?.chassis ? item?.chassis : "- - - - - - - - -"}`, colSpan:2, }, {},{text: `MODELO: ${item?.plate ? item?.plate : "- - - - - - - - -"}`}],
                         [{text: item?.stolen_recovered === true ? 'VEÍCULO FURTADO  RECUPERADO' :item?.stolen_recovered === false ? 'VEÍCULO APREENDIDO': null , colSpan:3, }, {},{}],
                 ]
                 },
@@ -196,7 +202,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: '33.3%',
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE SUBST.: ${item?.subtype}`},{text: `QUANTIDADE: ${item?.quantity}g`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE SUBST.: ${item?.subtype}`},{text: `QUANTIDADE: ${item?.quantity} g`}],
                 ]
                 },
                 layout:{
@@ -211,8 +217,8 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: '33.3%',
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
-                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                        [{text: `TIPO: ${item?.type.toUpperCase()}` }, {text: `TIPO DE ARMA.: ${item?.subtype.toUpperCase()}`},{text: `MARCA: ${item?.brand ? item?.brand.toUpperCase() : "- - - - - - - - -" }`}],
+                        [{text: `MODELO: ${item?.model ? item?.model.toUpperCase() : "- - - - - - - - -" }` }, {text: `Nº DE SÉRIE.: ${item?.serial_number ? item?.serial_number.toUpperCase() :  "- - - - - - - - -" }`},{text: `CALIBRE: ${item?.caliber ? item?.caliber.toUpperCase() : "- - - - - - - - -"}`}],
                 ]
                 },
                 layout:{
@@ -227,8 +233,8 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: '33.3%',
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
-                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype.toUpperCase()}`},{text: `MARCA: ${item?.brand ? item?.brand.toUpperCase() : "- - - - - - - - -" }`}],
+                        [{text: `MODELO: ${item?.model ? item?.model.toUpperCase() : "- - - - - - - - -" }` }, {text: `Nº DE SÉRIE.:  ${item?.serial_number ? item?.serial_number.toUpperCase() :  "- - - - - - - - -" }`},{text: `CALIBRE: ${item?.caliber ? item?.caliber.toUpperCase() : "- - - - - - - - -"}`}],
                 ]
                 },
                 layout:{
@@ -243,8 +249,8 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: '33.3%',
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
-                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype.toUpperCase()}`},{text: `MARCA: ${item?.brand ? item?.brand.toUpperCase() : "- - - - - - - - -" }`}],
+                        [{text: `MODELO: ${item?.model ? item?.model.toUpperCase() : "- - - - - - - - -" }` }, {text: `Nº DE SÉRIE.:  ${item?.serial_number ? item?.serial_number.toUpperCase() :  "- - - - - - - - -" }`},{text: `CALIBRE: ${item?.caliber ? item?.caliber.toUpperCase() : "- - - - - - - - -"}`}],
                 ]
                 },
                 layout:{
@@ -259,8 +265,8 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: '33.3%',
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`},{text: `MARCA: ${item?.brand}`}],
-                        [{text: `MODELO: ${item?.model}` }, {text: `Nº DE SÉRIE.: ${item?.serial_number}`},{text: `CALIBRE: ${item?.caliber}`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype.toUpperCase()}`},{text: `MARCA: ${item?.brand ? item?.brand.toUpperCase() : "- - - - - - - - -" }`}],
+                        [{text: `MODELO: ${item?.model ? item?.model.toUpperCase() : "- - - - - - - - -" }` }, {text: `Nº DE SÉRIE.:  ${item?.serial_number ? item?.serial_number.toUpperCase() :  "- - - - - - - - -" }`},{text: `CALIBRE: ${item?.caliber ? item?.caliber.toUpperCase() : "- - - - - - - - -"}`}],
                 ]
                 },
                 layout:{
@@ -277,7 +283,7 @@ exports.pdfReportDefinitions = function(report ){
                     widths: '50%',
                     body:[
                         [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`}],
-                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description}`}],
+                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
                 ]
                 },
                 layout:{
@@ -293,7 +299,7 @@ exports.pdfReportDefinitions = function(report ){
                     widths: '50%',
                     body:[
                         [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`}],
-                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description}`}],
+                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
                 ]
                 },
                 layout:{
@@ -309,7 +315,7 @@ exports.pdfReportDefinitions = function(report ){
                     widths: '50%',
                     body:[
                         [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.subtype}`}],
-                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description}`}],
+                        [{text: `QUANTIDADE: ${item?.quantity}` }, {text: `DESCRIÇÃO: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
                 ]
                 },
                 layout:{
@@ -324,7 +330,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['15% ', '*'],
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.description.toUpperCase()}`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
                         
                 ]
                 },
@@ -340,7 +346,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['15%','20%', '*'],
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `QTD.: R$ ${item?.quantity}`},{text: `DESCRIÇÃO: ${item?.description}`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `QTD.: R$ ${item?.quantity}`},{text: `DESCRIÇÃO: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
                 ]
                 },
                 layout:{
@@ -446,8 +452,8 @@ exports.pdfReportDefinitions = function(report ){
             style: 'subheader' ,
         },
         {
-            text: `CARGO/NOME:___________________________________________________   MATRICULA:______________   CPF:______________________\n
-            DATA: ______/______/______   HORA: _____:_____   ASSINATURA:______________________________________________________________`
+            text: `CARGO/NOME:_______________________________________   MATRICULA:______________   CPF:______________________\n
+            DATA: ______/______/______   HORA: _____:_____   ASSINATURA:__________________________________________________`
         }
         
 

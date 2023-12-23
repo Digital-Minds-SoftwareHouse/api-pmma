@@ -10,7 +10,7 @@ let postgres = new Pool({
     database: process.env.DATA_BASE,
     connectionTimeoutMillis: 75000,
     idleTimeoutMillis: 75000,
-    maxUses: 100
+    maxUses: 80
 })
 postgres.connect().then(()=>{console.log('DB Connected');},(e)=>{console.log('DB Conection Error: ', e)})
 module.exports = postgres

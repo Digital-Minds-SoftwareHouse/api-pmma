@@ -409,16 +409,16 @@ exports.deleteReport = async function(req, res, err){
     `)).rows
 
     for(let i = 0; i < nature_key?.length; i++){
-        postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i]?.id}`)
+        await postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i]?.id}`)
     }
     for(let j = 0; j < envolved_key?.length; j++){
-        postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j]?.id}`)
+        await postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j]?.id}`)
     }
     for(let k = 0; k < object_key?.length; k++){
-        postgres.query(`DELETE FROM objects WHERE id = ${object_key[k]?.id}`)
+        await postgres.query(`DELETE FROM objects WHERE id = ${object_key[k]?.id}`)
     }
     for(let l = 0; l < staff_key?.length; l++){
-        postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l]?.id}`)
+        await postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l]?.id}`)
     }
     postgres.query(`DELETE FROM report WHERE number_report = '${number_report}'`)
         res.status(201).send({message: "Deleting report success!", id: number_report})
