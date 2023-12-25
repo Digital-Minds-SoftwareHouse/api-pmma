@@ -34,6 +34,7 @@ CREATE TABLE
         rg BIGINT,
         cpf VARCHAR(30),
         particular_signs TEXT,
+        health_condition VARCHAR(100),
         bodily_injuries TEXT
     );
 CREATE TABLE

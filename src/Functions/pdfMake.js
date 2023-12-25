@@ -100,6 +100,7 @@ exports.pdfReportDefinitions = function(report ){
                         [{text: `NASCIMENTO:  ${item.birthdate ? dateBrFormat(item.birthdate) : "- - - - - - - - -"}`},{text: `NOME DA MÃE:${item.mother ? item.mother.toUpperCase() : "- - - - - - - - -"}`, colSpan:2}],
                         [{text: `NATURAL DE: ${item.naturalness ? item.naturalness.toUpperCase() : "- - - - - - - - -"}`},{text: `ENDEREÇO: ${item.address ? item.address.toUpperCase() : "- - - - - - - - -" }`},{text: `CIDADE: ${item.city ? item.city.toUpperCase() : "- - - - - - - - -"}`}],
                         [{text: `SINAIS PARTICULARES: ${item.particular_signs ? item.particular_signs : 'SEM SINAIS PARTICULARES' }`, colSpan:3}],
+                        [{text: `ESTADO DE SAÚDE: APARENTEMENTE BEM (SEM NECESSIDADE DE ATENDIMENTO MÉDICO)`, colSpan:3}],
                         [{text: `LESÕES CORPORAIS: ${item.bodily_injuries ? item.bodily_injuries : 'SEM LESÕES CORPORAIS' }`, colSpan:3}],
                 ]
                 },
@@ -371,12 +372,28 @@ exports.pdfReportDefinitions = function(report ){
                 paddingTop: function () {return 4},
             }
         },
+
+        {                
+            style: 'tableExample2',
+            table:{
+                widths: ['44% ', '*'],
+                body:[
+                    [{text: "RESPONSÁVEL PELA CONDUÇÃO (VOZ DE PRISÃO)", bold:true }, {text: `SDPM-821390-MUNIZ CPF:042.116.193-06`}],
+                    
+            ]
+            },
+            layout:{
+                hLineWidth: function () {return 0.5},
+                vLineWidth: function () {return 0.5},
+                paddingTop: function () {return 4}
+            }
+        },
         data?.police_staff.map((item)=>(
             item?.staff_function === 'COMANDANTE'?
             {                
                 style: 'tableExample2',
                 table:{
-                    widths: ['28% ', '*'],
+                    widths: ['44% ', '*'],
                     body:[
                         [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
                         
@@ -395,7 +412,7 @@ exports.pdfReportDefinitions = function(report ){
             {                
                 style: 'tableExample2',
                 table:{
-                    widths: ['28% ', '*'],
+                    widths: ['44% ', '*'],
                     body:[
                         [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
                         
@@ -414,7 +431,7 @@ exports.pdfReportDefinitions = function(report ){
             {                
                 style: 'tableExample2',
                 table:{
-                    widths: ['28% ', '*'],
+                    widths: ['44% ', '*'],
                     body:[
                         [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
                         
@@ -433,7 +450,7 @@ exports.pdfReportDefinitions = function(report ){
             {                
                 style: 'tableExample2',
                 table:{
-                    widths: ['28% ', '*'],
+                    widths: ['44% ', '*'],
                     body:[
                         [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
                         

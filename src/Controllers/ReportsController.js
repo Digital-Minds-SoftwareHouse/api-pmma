@@ -344,11 +344,12 @@ exports.postReport = async function (req, res, err){
                 graduation_rank = req.body.police_staff[i].graduation_rank,
                 war_name = req.body.police_staff[i].war_name,
                 id_policial = req.body.police_staff[i].id_policial,
-                staff_function = req.body.police_staff[i].staff_function
+                staff_function = req.body.police_staff[i].staff_function,
+                cpf = req.body.police_staff[i].cpf
             ]
             const staff_query = `
-                INSERT INTO police_staff(graduation_rank, war_name, id_policial, staff_function)
-                VALUES($1, $2, $3, $4)
+                INSERT INTO police_staff(graduation_rank, war_name, id_policial, staff_function, cpf)
+                VALUES($1, $2, $3, $4,$5)
             `
             await postgres.query(staff_query, staff_values)
 
@@ -555,11 +556,12 @@ exports.putReport = async function (req, res, err){
                 graduation_rank = req.body.police_staff[i].graduation_rank,
                 war_name = req.body.police_staff[i].war_name,
                 id_policial = req.body.police_staff[i].id_policial,
-                staff_function = req.body.police_staff[i].staff_function
+                staff_function = req.body.police_staff[i].staff_function,
+                cpf = req.body.police_staff[i].cpf
             ]
             const staff_query = `
-                INSERT INTO police_staff(graduation_rank, war_name, id_policial, staff_function)
-                VALUES($1, $2, $3, $4)
+                INSERT INTO police_staff(graduation_rank, war_name, id_policial, staff_function, cpf)
+                VALUES($1, $2, $3, $4, $5)
             `
             await postgres.query(staff_query, staff_values)
             console.log('inserindo STAFF ')
