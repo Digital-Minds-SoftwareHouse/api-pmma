@@ -385,7 +385,8 @@ exports.putReport = async function (req, res, err){
         const envolved_key = (await postgres.query(`SELECT * FROM report_envolved WHERE number_report = '${number_report}'`)).rows
         const object_key = (await postgres.query(`SELECT * FROM report_objects WHERE number_report = '${number_report}'`)).rows
         const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = '${number_report}'`)).rows
-        console.log(nature_key);
+        const detention_responsible_key = (await postgres.query(`SELECT * FROM report_detention_responsible WHERE number_report = '${number_report}'`)).rows
+
         
         for(let i = 0; i < nature_key.length; i++){
             postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i].nature_id}`).then(console.log("natureza deletada"))
@@ -398,7 +399,10 @@ exports.putReport = async function (req, res, err){
         }
         for(let l = 0; l < staff_key.length; l++){
             postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`)
-        }  
+        }
+        for(let m = 0; m < detention_responsible_key.length; m++){
+            postgres.query(`DELETE FROM detention_responsible WHERE id = ${detention_responsible_key[m].staff_id}`)
+        } 
     }
     async function nature_register (){        
         for(let i = 0; i < req.body.natures.length; i++){
@@ -407,7 +411,7 @@ exports.putReport = async function (req, res, err){
                 punctuaction = req.body.natures[i].punctuaction
             ]
             const nature_query = `INSERT INTO natures(nature, punctuaction) VALUES($1, $2)`
-            await postgres.query(nature_query, natures_values).then(console.log('inserido natureza '))
+            await postgres.query(nature_query, natures_values)
 
             const id_nature = await postgres.query("SELECT id FROM natures ORDER BY id DESC LIMIT 1")
             const relationship_values = [
@@ -416,7 +420,7 @@ exports.putReport = async function (req, res, err){
             ]
             const relationship_query = `INSERT INTO report_nature(number_report, nature_id) VALUES($1, $2)`
             
-            await postgres.query(relationship_query, relationship_values).then(console.log("inserido ralacionamento NATUREZA"))
+            await postgres.query(relationship_query, relationship_values)
         }
     }
     async function envolveds_register (){
@@ -439,16 +443,15 @@ exports.putReport = async function (req, res, err){
                 profession = req.body.envolveds[i].profession,
                 particular_signs = req.body.envolveds[i].particular_signs,
                 bodily_injuries = req.body.envolveds[i].bodily_injuries,
-
+                health_condition = req.body.envolveds[i].health_condition
             ]
             const envolved_query = `
                 INSERT INTO envolved(  name, type_of_involvement, birthdate, mother, sex, gender,
                                         address, district, city, naturalness, race_color, 
-                                        phone_number, rg, cpf, profession, particular_signs, bodily_injuries )
-                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                                        phone_number, rg, cpf, profession, particular_signs, bodily_injuries, health_condition )
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
             `
             await postgres.query(envolved_query, envolveds_values)
-            console.log('inserindo envolvido')
 
             const id_envolved = await postgres.query("SELECT id FROM envolved ORDER BY id DESC LIMIT 1")
             const relationship_values = [
@@ -459,7 +462,6 @@ exports.putReport = async function (req, res, err){
                 INSERT INTO report_envolved(number_report, envolved_id) VALUES($1, $2)
             `
             await postgres.query(relationship_query, relationship_values) 
-            console.log('inserindo envolvido RELACIONAMENTO')
         }
     }
     async function objects_register (){
@@ -484,7 +486,6 @@ exports.putReport = async function (req, res, err){
                 VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             `
             await postgres.query(objects_query, objects_values)
-            console.log('inserindo OBJETO ')
 
             const id_object = await postgres.query(`SELECT id FROM objects ORDER BY id DESC LIMIT 1`)
             const relationship_values = [
@@ -495,7 +496,31 @@ exports.putReport = async function (req, res, err){
                 INSERT INTO report_objects(number_report, object_id) VALUES($1, $2)
             `
             await postgres.query(relationship_query, relationship_values)
-            console.log('inserindo OBJETO RELACIONAMENTO')
+        }
+    }
+    async function detention_responsible_register(){
+        for(let i = 0; i < req.body.detention_responsible.length; i++){
+            const staff_values = [
+                graduation_rank = req.body.detention_responsible[i].graduation_rank,
+                war_name = req.body.detention_responsible[i].war_name,
+                id_policial = req.body.detention_responsible[i].id_policial,
+                cpf = req.body.detention_responsible[i].cpf
+            ]
+            const staff_query = `
+                INSERT INTO detention_responsible(graduation_rank, war_name, id_policial, cpf)
+                VALUES($1, $2, $3, $4)
+            `
+            await postgres.query(staff_query, staff_values)
+
+            const id_detention_responsible = await postgres.query(`SELECT id FROM detention_responsible ORDER BY id DESC LIMIT 1`)
+            const relationship_values = [
+                number_report = number_last_report,
+                detention_responsible_id = id_detention_responsible.rows[0].id
+            ]
+            const relationship_query = `
+                INSERT INTO report_detention_responsible(number_report, detention_responsible_id) VALUES($1, $2)
+            `
+            await postgres.query(relationship_query, relationship_values)
         }
     }
     async function staff_register(){
@@ -512,7 +537,6 @@ exports.putReport = async function (req, res, err){
                 VALUES($1, $2, $3, $4, $5)
             `
             await postgres.query(staff_query, staff_values)
-            console.log('inserindo STAFF ')
 
             const id_staff = await postgres.query(`SELECT id FROM police_staff ORDER BY id DESC LIMIT 1`)
             const relationship_values = [
@@ -523,11 +547,9 @@ exports.putReport = async function (req, res, err){
                 INSERT INTO report_staff(number_report, staff_id) VALUES($1, $2)
             `
             await postgres.query(relationship_query, relationship_values)
-            console.log('inserindo STAFF RELACIONAMENTO')
         }
     }
     let majorPoints = 0
-    console.log("++++++",req.body.natures);
     for(let i = 0; i < req.body.natures.length; i++){
         if(req.body.natures[i].punctuaction > majorPoints){
             majorPoints = req.body.natures[i].punctuaction
@@ -571,8 +593,10 @@ exports.putReport = async function (req, res, err){
         nature_register()
         envolveds_register()
         objects_register()
+        detention_responsible_register()
         staff_register()
         postgres.query(report_update_query, report_update_values).then(
+            console.log({message: "REPORT ACTUALIZED SUCCESS!\n"}),
             res.status(201).send({message: 'reportt actualized success!'})
         )        
     } catch (error) {

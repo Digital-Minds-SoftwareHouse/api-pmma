@@ -31,7 +31,7 @@ exports.pdfReportDefinitions = function(report ){
 
     for(let k in data?.police_staff){
         if(data.police_staff[k]?.staff_function === 'COMANDANTE'){
-            staffCommander = `${data.police_staff[k].graduation_rank} ${data.police_staff[k].war_name} CPF: 000.000.000-00`
+            staffCommander = `${data.police_staff[k].graduation_rank} ${data.police_staff[k].war_name} CPF: ${data.police_staff[k].cpf}`
         }
     }
 
@@ -100,8 +100,8 @@ exports.pdfReportDefinitions = function(report ){
                         [{text: `NASCIMENTO:  ${item.birthdate ? dateBrFormat(item.birthdate) : "- - - - - - - - -"}`},{text: `NOME DA MÃE:${item.mother ? item.mother.toUpperCase() : "- - - - - - - - -"}`, colSpan:2}],
                         [{text: `NATURAL DE: ${item.naturalness ? item.naturalness.toUpperCase() : "- - - - - - - - -"}`},{text: `ENDEREÇO: ${item.address ? item.address.toUpperCase() : "- - - - - - - - -" }`},{text: `CIDADE: ${item.city ? item.city.toUpperCase() : "- - - - - - - - -"}`}],
                         [{text: `SINAIS PARTICULARES: ${item.particular_signs ? item.particular_signs : 'SEM SINAIS PARTICULARES' }`, colSpan:3}],
-                        [{text: `ESTADO DE SAÚDE: APARENTEMENTE BEM (SEM NECESSIDADE DE ATENDIMENTO MÉDICO)`, colSpan:3}],
-                        [{text: `LESÕES CORPORAIS: ${item.bodily_injuries ? item.bodily_injuries : 'SEM LESÕES CORPORAIS' }`, colSpan:3}],
+                        [{text: `ESTADO DE SAÚDE: ${item.health_condition}`, colSpan:3}],
+                        [{text: `LESÕES CORPORAIS: ${item.bodily_injuries }`, colSpan:3}],
                 ]
                 },
                 layout:{
@@ -121,7 +121,7 @@ exports.pdfReportDefinitions = function(report ){
                     [{text: `ENDEREÇO DA OCORRÊNCIA: ${data?.report_address.toUpperCase()} - ${data?.report_district.toUpperCase()} `, colSpan:2}],
                     [{text: `COORDENADAS DE GEOLOCALIZAÇÃO`, colSpan:2}],
                     [{text: `LATITUDE: ${data?.latitude}`},{text: `LONGITUDE: ${data?.longitude}`}],
-                    [{text: `USO DE ALGEMA: ${data.usehandcuffs ? "SIM" : "NÃO" } `},{text: `JUSTIFICATIVA: ${data.justify_handcuffs ? data.justify_handcuffs : "- - - - - - - - -" }`}],
+                    [{text: `USO DE ALGEMA: ${data?.use_handcuffs} `, colSpan:2}],
             ]
             },
             layout:{
@@ -137,7 +137,7 @@ exports.pdfReportDefinitions = function(report ){
                 body:[
                     [{text: `INFORMAÇÕES ADCIONAIS `, colSpan:2, fillColor: '#ccc', style: 'tableHeader'}, {}],
                     [{text: `OBSERVAÇÕES:  ${data?.commments ? data.comments : "- - - - - - - - -"}`, colSpan:2},{}],
-                    [{text: `CONTATO DA UPM: E-mail: 26bpm.adm@gmail.com, FONE: (99) 9 9168-3433`, colSpan:2}],
+                    [{text: `CONTATO DA UPM: E-mail: 26bpm.adm@gmail.com, FONE: (99) 9 9168-3433 CENTRAL DE OPERAÇÕES`, colSpan:2}],
             ]
             },
             layout:{
@@ -378,8 +378,7 @@ exports.pdfReportDefinitions = function(report ){
             table:{
                 widths: ['44% ', '*'],
                 body:[
-                    [{text: "RESPONSÁVEL PELA CONDUÇÃO (VOZ DE PRISÃO)", bold:true }, {text: `SDPM-821390-MUNIZ CPF:042.116.193-06`}],
-                    
+                    [{text: "RESPONSÁVEL PELA CONDUÇÃO (VOZ DE PRISÃO)", bold:true }, {text: `${data?.detention_responsible[0]?.graduation_rank} - ${data?.detention_responsible[0]?.war_name} - ID: ${data?.detention_responsible[0]?.id_policial} - CPF: ${data?.detention_responsible[0]?.cpf} `}],   
             ]
             },
             layout:{
@@ -395,7 +394,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['44% ', '*'],
                     body:[
-                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} - ID: ${item?.id_policial} - CPF: ${item?.cpf} `}],
                         
                 ]
                 },

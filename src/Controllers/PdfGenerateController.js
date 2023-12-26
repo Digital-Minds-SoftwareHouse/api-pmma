@@ -31,7 +31,8 @@ exports.pdfReportGenerate = async function(req,res,err){
                 envolved.cpf,
                 envolved.particular_signs,
                 envolved.bodily_injuries,
-                envolved.profession 
+                envolved.profession,
+                envolved.health_condition
             FROM envolved
             LEFT join report_envolved ON report_envolved.envolved_id = envolved.id
             WHERE report_envolved.number_report = '${reportNumberParam}'    
@@ -71,10 +72,22 @@ exports.pdfReportGenerate = async function(req,res,err){
                 police_staff.war_name,
                 police_staff.graduation_rank,
                 police_staff.id_policial,
-                police_staff.staff_function
+                police_staff.staff_function,
+                police_staff.cpf
             FROM police_staff
             LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
             WHERE report_staff.number_report = '${reportNumberParam}'
+        `)).rows
+        const detention_responsible = (await postgres.query(`
+            SELECT 
+                detention_responsible.id,
+                detention_responsible.war_name,
+                detention_responsible.graduation_rank,
+                detention_responsible.id_policial,
+                detention_responsible.cpf
+            FROM detention_responsible
+            LEFT JOIN report_detention_responsible ON report_detention_responsible.detention_responsible_id = detention_responsible.id
+            WHERE report_detention_responsible.number_report = '${reportNumberParam}'
         `)).rows
         const response ={ 
             number_report: reports[0]?.number_report,
@@ -100,6 +113,7 @@ exports.pdfReportGenerate = async function(req,res,err){
             natures: natures,
             envolveds: envolveds,
             objects: objects,
+            detention_responsible : detention_responsible,
             police_staff: police_staff,
         }
         //************************************************************************************************************
