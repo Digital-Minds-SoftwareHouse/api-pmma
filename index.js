@@ -30,6 +30,7 @@ const ReportsRouter = require('./src/Routes/reports')
 const RegiterReportAccessRouter = require('./src/Routes/RegisterReportAccess')
 const PdfGenerateRouter = require('./src/Routes/pdfGenerate')
 const ReportsQuantityRouter = require('./src/Routes/reportsQuantity')
+const TestesRouter = require("./src/Routes/testesQuery")
 
 
 //app.use(cors())
@@ -51,6 +52,7 @@ app.use('/reports', ReportsRouter)
 app.use('/permission', RegiterReportAccessRouter)
 app.use('/pdf_generate', PdfGenerateRouter)
 app.use('/reportsQuantity', ReportsQuantityRouter )
+app.use('/testes', TestesRouter)
 module.exports = app
 
 

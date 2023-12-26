@@ -4,180 +4,101 @@ const deleteRelationship = require('../Functions/deleteRelationship')
 exports.getAllReports = async function (req, res, err){
 
     console.log('ROTA DE OCORRENCIAS');
-    const reports = (await postgres.query(` SELECT * FROM report`)).rows
+    const reports = (await postgres.query(` 
+        SELECT
+            r.id,
+            r.number_report,
+            r.date_time,
+            r.report_city,
+            r.police_garrison,
+            r.type_report,
+            r.report_address,
+            r.report_district,
+            r.cep,
+            r.police_garrison,
+            r.latitude,
+            r.longitude,
+            r.history,
+            r.area,
+            r.battalion,
+            r.punctuaction,
+            r.use_handcuffs,
+            r.justify_handcuffs,
+            r.comments,
+            r.upm_contact,
+            r.motivation_approach,
+            r.origin,
+            COALESCE( json_agg(DISTINCT n.*), '[]'::json ) AS natures,
+            COALESCE( json_agg(DISTINCT e.*), '[]'::json ) AS envolveds,
+            COALESCE( json_agg(DISTINCT o.*), '[]'::json ) AS objects,
+            COALESCE( json_agg(DISTINCT dr.*), '[]'::json ) AS detention_responsible,
+            COALESCE( json_agg(DISTINCT ps.*), '[]'::json ) AS police_staff
+        FROM report r
+        LEFT JOIN report_staff rs ON r.number_report = rs.number_report
+        LEFT JOIN police_staff ps ON rs.staff_id = ps.id
+        LEFT JOIN report_nature rn ON r.number_report = rn.number_report
+        LEFT JOIN natures n ON rn.nature_id = n.id
+        LEFT JOIN report_objects ro ON r.number_report = ro.number_report
+        LEFT JOIN objects o ON ro.object_id = o.id
+        LEFT JOIN report_detention_responsible rdr ON r.number_report = rdr.number_report
+        LEFT JOIN detention_responsible dr ON rdr.detention_responsible_id = dr.id
+        LEFT JOIN report_envolved re ON r.number_report = re.number_report
+        LEFT JOIN envolved e ON re.envolved_id = e.id
+        GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;    
+    `)).rows
 
-    const reports_envolveds = (await postgres.query('SELECT * FROM report_envolved')).rows
-    const envolveds = (await postgres.query('SELECT * FROM envolved')).rows
-
-    const reports_natures = (await postgres.query('SELECT * FROM report_nature')).rows
-    const natures = (await postgres.query('SELECT * FROM natures')).rows
-
-    const reports_objects = (await postgres.query('SELECT * FROM report_objects')).rows
-    const objects = (await postgres.query('SELECT * FROM objects')).rows
-
-    const reports_staff = (await postgres.query('SELECT * FROM report_staff')).rows
-    const staff = (await postgres.query('SELECT * FROM police_staff')).rows
-
-    const response_array = []
-
-    for(let i = 0; i < reports.length; i++){
-        let envolved_array = []
-        let nature_array = []
-        let objects_array = []
-        let staff_array = []
- 
-        for(let j = 0; j < reports_envolveds.length; j++){
-            if (reports[i].number_report === reports_envolveds[j].number_report){
-                envolved_array.push(envolveds[j])
-            }          
-        }
-        for(let k = 0; k < reports_natures.length; k++ ){
-            if(reports[i].number_report === reports_natures[k].number_report){
-                nature_array.push(natures[k])
-            }
-        }
-        for(let l = 0; l < reports_objects.length; l++){
-            if(reports[i].number_report === reports_objects[l].number_report){
-                objects_array.push(objects[l])
-            }
-        }
-        for(let m = 0; m < reports_staff.length; m++){
-            if(reports[i].number_report === reports_staff[m].number_report){
-                staff_array.push(staff[m])
-            }
-        }
-        response_array.push(
-            { 
-                number_report: reports[i].number_report,
-                type_report: reports[i].type_report,
-                date_time: reports[i].date_time,
-                report_address: reports[i].report_address,
-                report_district: reports[i].report_district,
-                report_city: reports[i].report_city,
-                cep: reports[i].cep,
-                police_garrison: reports[i].police_garrisson,
-                latitude: reports[i].latitude,
-                longitude: reports[i].longitude,
-                history: reports[i].history,
-                area: reports[i].area,
-                battalion: reports[i].battalion,
-                punctuaction: reports[i].punctuaction,
-                natures: nature_array.map(item=>item),
-                envolveds: envolved_array.map(item=>item),
-                objects: objects_array.map(item=>item),
-                police_staff: staff_array.map(item=>item),
-                use_handcuffs : reports[i].use_handcuffs,
-                justify_handcuffs : reports[i].justify_handcuffs,
-                comments : reports[i].comments,
-                upm_contact : reports[i].upm_contact,
-                motivation_approach : reports[i].motivation_approach,
-                origin : reports[i].origin
-            }
-        )        
-    }
-    res.status(302).send(response_array)
+    res.status(302).send(reports)
 }
 exports.getSpecificReport = async function (req, res, err){
     let battalionParam = new String(req.params.battalion)
     let reportNumberParam = req.params.number_report
 
     console.log('ROTA DE OCORRENCIAS');
-    const reports = (await postgres.query(` SELECT * FROM report WHERE  number_report = '${reportNumberParam}'`)).rows
-    if(reports.length == 0) {
-        return res.status(404).send({message: "ROP não encontrado ou não registrado"})
-    }else if (reports.length != 0){
-        const envolveds = (await postgres.query(`
-            SELECT 
-                envolved.id,
-                envolved.name,
-                envolved.type_of_involvement,
-                envolved.birthdate,
-                envolved.mother,
-                envolved.sex,
-                envolved.gender,
-                envolved.address,
-                envolved.city,
-                envolved.district,
-                envolved.naturalness,
-                envolved.race_color,
-                envolved.phone_number,
-                envolved.rg,
-                envolved.cpf,
-                envolved.particular_signs,
-                envolved.bodily_injuries,
-                envolved.profession 
-            FROM envolved
-            LEFT join report_envolved ON report_envolved.envolved_id = envolved.id
-            WHERE report_envolved.number_report = '${reportNumberParam}'    
-        `)).rows
-        const objects = (await postgres.query(`
-            SELECT 
-                objects.id,
-                objects.type,
-                objects.subtype,
-                objects.description,
-                objects.quantity,
-                objects.serial_number,
-                objects.chassis,
-                objects.brand,
-                objects.model,
-                objects.plate,
-                objects.color,
-                objects.stolen_recovered,
-                objects.caliber
-            FROM objects
-            LEFT JOIN report_objects ON report_objects.object_id = objects.id
-            WHERE report_objects.number_report = '${reportNumberParam}'
-        
-        `)).rows
-        const natures = (await postgres.query(`
-            SELECT 
-                natures.id,
-                natures.nature,
-                natures.punctuaction
-            FROM natures
-            LEFT JOIN report_nature ON report_nature.nature_id = natures.id
-            WHERE report_nature.number_report = '${reportNumberParam}'    
-        `)).rows
-        const police_staff = (await postgres.query(`
-            SELECT 
-                police_staff.id,
-                police_staff.war_name,
-                police_staff.graduation_rank,
-                police_staff.id_policial,
-                police_staff.staff_function
-            FROM police_staff
-            LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
-            WHERE report_staff.number_report = '${reportNumberParam}'
-        `)).rows
-        const response ={ 
-            number_report: reports[0]?.number_report,
-            type_report: reports[0]?.type_report,
-            date_time: reports[0]?.date_time,
-            report_address: reports[0]?.report_address,
-            report_district: reports[0]?.report_district,
-            report_city: reports[0]?.report_city,
-            cep: reports[0]?.cep,
-            police_garrison: reports[0]?.police_garrison,
-            latitude: reports[0]?.latitude,
-            longitude: reports[0]?.longitude,
-            history: reports[0]?.history,
-            area: reports[0]?.area,
-            battalion: reports[0]?.battalion,
-            punctuaction: reports[0]?.punctuaction,
-            use_handcuffs : reports[0]?.use_handcuffs,
-            justify_handcuffs : reports[0]?.justify_handcuffs,
-            comments : reports[0]?.comments,
-            upm_contact : reports[0]?.upm_contact,
-            motivation_approach : reports[0]?.motivation_approach,
-            origin : reports[0]?.origin,
-            natures: natures,
-            envolveds: envolveds,
-            objects: objects,
-            police_staff: police_staff,
-        }
-        res.status(302).send(response) 
-    }
+    const response = (await postgres.query(`
+        SELECT
+            r.id,
+            r.number_report,
+            r.date_time,
+            r.report_city,
+            r.police_garrison,
+            r.type_report,
+            r.report_address,
+            r.report_district,
+            r.cep,
+            r.police_garrison,
+            r.latitude,
+            r.longitude,
+            r.history,
+            r.area,
+            r.battalion,
+            r.punctuaction,
+            r.use_handcuffs,
+            r.justify_handcuffs,
+            r.comments,
+            r.upm_contact,
+            r.motivation_approach,
+            r.origin,
+            COALESCE( json_agg(DISTINCT n.*), '[]'::json ) AS natures,
+            COALESCE( json_agg(DISTINCT e.*), '[]'::json ) AS envolveds,
+            COALESCE( json_agg(DISTINCT o.*), '[]'::json ) AS objects,
+            COALESCE( json_agg(DISTINCT dr.*), '[]'::json ) AS detention_responsible,
+            COALESCE( json_agg(DISTINCT ps.*), '[]'::json ) AS police_staff
+        FROM report r
+        LEFT JOIN report_staff rs ON r.number_report = rs.number_report
+        LEFT JOIN police_staff ps ON rs.staff_id = ps.id
+        LEFT JOIN report_nature rn ON r.number_report = rn.number_report
+        LEFT JOIN natures n ON rn.nature_id = n.id
+        LEFT JOIN report_objects ro ON r.number_report = ro.number_report
+        LEFT JOIN objects o ON ro.object_id = o.id
+        LEFT JOIN report_detention_responsible rdr ON r.number_report = rdr.number_report
+        LEFT JOIN detention_responsible dr ON rdr.detention_responsible_id = dr.id
+        LEFT JOIN report_envolved re ON r.number_report = re.number_report
+        LEFT JOIN envolved e ON re.envolved_id = e.id
+        WHERE r.number_report = '${reportNumberParam}' AND r.battalion = '26 BPM'
+        GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;
+    `)).rows
+
+    res.status(302).send(response)
 }
 exports.postReport = async function (req, res, err){
     console.log('rota de post')
@@ -283,13 +204,14 @@ exports.postReport = async function (req, res, err){
                 cpf = req.body.envolveds[i].cpf,
                 profession = req.body.envolveds[i].profession,
                 particular_signs = req.body.envolveds[i].particular_signs,
-                bodily_injuries = req.body.envolveds[i].bodily_injuries
+                bodily_injuries = req.body.envolveds[i].bodily_injuries,
+                health_condition = req.body.envolveds[i].health_condition
             ]
             const envolved_query = `
                 INSERT INTO envolved(  name, type_of_involvement, birthdate, mother, sex, gender,
                                         address, district, city, naturalness, race_color, 
-                                        phone_number, rg, cpf, profession, particular_signs, bodily_injuries )
-                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                                        phone_number, rg, cpf, profession, particular_signs, bodily_injuries, health_condition )
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
             `
             await postgres.query(envolved_query, envolveds_values)
 
@@ -338,6 +260,31 @@ exports.postReport = async function (req, res, err){
             await postgres.query(relationship_query, relationship_values)
         }
     }
+    async function detention_responsible_register(){
+        for(let i = 0; i < req.body.detention_responsible.length; i++){
+            const staff_values = [
+                graduation_rank = req.body.detention_responsible[i].graduation_rank,
+                war_name = req.body.detention_responsible[i].war_name,
+                id_policial = req.body.detention_responsible[i].id_policial,
+                cpf = req.body.detention_responsible[i].cpf
+            ]
+            const staff_query = `
+                INSERT INTO detention_responsible(graduation_rank, war_name, id_policial, cpf)
+                VALUES($1, $2, $3, $4)
+            `
+            await postgres.query(staff_query, staff_values)
+
+            const id_detention_responsible = await postgres.query(`SELECT id FROM detention_responsible ORDER BY id DESC LIMIT 1`)
+            const relationship_values = [
+                number_report = number_last_report,
+                detention_responsible_id = id_detention_responsible.rows[0].id
+            ]
+            const relationship_query = `
+                INSERT INTO report_detention_responsible(number_report, detention_responsible_id) VALUES($1, $2)
+            `
+            await postgres.query(relationship_query, relationship_values)
+        }
+    }
     async function staff_register(){
         for(let i = 0; i < req.body.police_staff.length; i++){
             const staff_values = [
@@ -369,6 +316,7 @@ exports.postReport = async function (req, res, err){
         nature_register()
         envolveds_register()
         objects_register()
+        detention_responsible_register()
         staff_register()
         res.status(201).send({message: 'report register success!'})        
     } 
