@@ -55,4 +55,13 @@ router.get('/', async (req,res,err)=> {
     res.send(reports_envolveds)
 })
 
+router.post("/seed_users", (req, res, err)=>{
+    res.status(200).send({message: "na rota de seed"})
+})
+
+
+
+
+
 module.exports = router
+

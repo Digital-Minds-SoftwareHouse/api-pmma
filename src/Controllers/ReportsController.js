@@ -377,7 +377,7 @@ exports.deleteReport = async function(req, res, err){
 }
 exports.putReport = async function (req, res, err){
     console.log('PUT REPORTS');
-    //console.log(req.body);
+    console.log(req.body);
     let number_report = req.body.number_report
 
     async function deleteRegisters(){
@@ -392,16 +392,16 @@ exports.putReport = async function (req, res, err){
             postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i].nature_id}`).then(console.log("natureza deletada"))
         }
         for(let j = 0; j < envolved_key.length; j++){
-            postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j].envolved_id}`)
+            postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j].envolved_id}`).then(console.log("envolved deletada"))
         }
         for(let k = 0; k < object_key.length; k++){
-            postgres.query(`DELETE FROM objects WHERE id = ${object_key[k].object_id}`)
+            postgres.query(`DELETE FROM objects WHERE id = ${object_key[k].object_id}`).then(console.log("object deletada"))
         }
         for(let l = 0; l < staff_key.length; l++){
-            postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`)
+            postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`).then(console.log("staff deletada"))
         }
         for(let m = 0; m < detention_responsible_key.length; m++){
-            postgres.query(`DELETE FROM detention_responsible WHERE id = ${detention_responsible_key[m].staff_id}`)
+            postgres.query(`DELETE FROM detention_responsible WHERE id = ${detention_responsible_key[m].detention_responsible_id}`).then(console.log("detention deletada"))
         } 
     }
     async function nature_register (){        
@@ -499,7 +499,7 @@ exports.putReport = async function (req, res, err){
         }
     }
     async function detention_responsible_register(){
-        for(let i = 0; i < req.body.detention_responsible.length; i++){
+        for(let i = 0; i < req.body?.detention_responsible?.length; i++){
             const staff_values = [
                 graduation_rank = req.body.detention_responsible[i].graduation_rank,
                 war_name = req.body.detention_responsible[i].war_name,
@@ -514,7 +514,7 @@ exports.putReport = async function (req, res, err){
 
             const id_detention_responsible = await postgres.query(`SELECT id FROM detention_responsible ORDER BY id DESC LIMIT 1`)
             const relationship_values = [
-                number_report = number_last_report,
+                number_report = req.body.number_report,
                 detention_responsible_id = id_detention_responsible.rows[0].id
             ]
             const relationship_query = `
@@ -576,6 +576,7 @@ exports.putReport = async function (req, res, err){
         upm_contact = req.body.upm_contact,
         motivation_approach = req.body.motivation_approach,
         origin = req.body.origin
+
     ]
     const report_update_query = `
         UPDATE report 

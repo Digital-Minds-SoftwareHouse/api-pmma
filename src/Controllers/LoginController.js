@@ -33,7 +33,8 @@ exports.login = async function(req, res, err){
                     const querySelecionaPolicialSenha = `SELECT * FROM policiais WHERE id_policial = ${responseId.rows[0].id_policial}`
                     const responsePolicialInformações =  await postgres.query(querySelecionaPolicialSenha)
                     const token = jwt.sign(responsePolicialInformações.rows[0].id_policial, process.env.SECRET)
-                    return res.status(200).send({status: 'sucsess', message: 'LOGIN EFETUADO COM SUCESSO!', token: token, 
+                    console.log('Logado')
+                    return res.status(200).send({status: 'sucsess', message: 'LOGIN EFETUADO COM SUCESSO!', token: token,                     
                     athorizedOfficer :{
                         warName:responsePolicialInformações.rows[0].nome_de_guerra,
                         id: responsePolicialInformações.rows[0].id_policial,
@@ -44,7 +45,7 @@ exports.login = async function(req, res, err){
                         generalScore: 100,
                         availableScore: 100
                     }
-                })                    
+                })  
                 }if(ress === false){
                     return res.status(500).send({status: 'error', message: 'CREDENCIAIS DE LOGIN INVÁLIDAS'})
                 }

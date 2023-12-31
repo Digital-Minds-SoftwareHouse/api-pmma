@@ -5,6 +5,7 @@ const UserController = require('../Controllers/UsuariosController')
 const upload = require('../Config/Multer')
 
 router.get('/', UserController.getOfficers)
+router.get('/summary_users', UserController.getSummaryOfficers)
 router.get('/:id', UserController.getEspecificOfficer)
 router.post('/', upload.single("file"), UserController.postOfficers)
 router.delete('/', UserController.deleteOfficer)

@@ -28,78 +28,18 @@ exports.getEspecificOfficer = async function(req, res){
         res.status(500).send({status: 'ERRO AO PERQUISAR USUÁRIO ESPECÍFICO.'})
     }
 }
+exports.getSummaryOfficers = async function ( req, res, err){
+    const response = (await postgres.query("SELECT id, nome_completo, nome_de_guerra, id_policial, posto_graduacao FROM policiais")).rows
+    res.status(200).send(response)
+}
 exports.postOfficers = async function ( req, res, err){
-    
-    //await console.log('senha: ', req.body.senha);
-    //res.status(200).send(req.body)
-    /*
-    console.log(req.file);
-    const senhaIn = req.body.senha
-    let salt = bcrypt.genSaltSync(8)
-    let hash = bcrypt.hashSync(senhaIn, salt)
-    
-    const file = req.file
-    console.log('File:', file.filename);
-
-    
-
-    const valuesPolicial = [
-        nome_completo = req.body.nome_completo,
-        senha = hash,
-        id_policial = req.body.id_policial,
-        matricula = req.body.matricula,
-        nome_de_guerra = req.body.nome_de_guerra,
-        logradouro = req.body.logradouro,
-        numero_casa_apto = req.body.numero_casa_apto,
-        complemento = req.body.complemento,
-        bairro = req.body.bairro,
-        cidade = req.body.cidade,
-        estado = req.body.estado,
-        cep = req.body.cep,
-        rg= req.body.rg,
-        data_expedicao= req.body.data_expedicao,
-        org_emissor= req.body.org_emissor,
-        cpf= req.body.cpf,
-        numero_titulo= req.body.numero_titulo,
-        zona= req.body.zona,
-        secao= req.body.secao,
-        rg_militar= req.body.rg_militar,
-        numero_cnh= req.body. numero_cnh,
-        validade_cnh= req.body.validade_cnh,
-        escolaridade = req.body.escolaridade,
-        estado_civil = req.body.estado_civil,
-        tipo_sanguineo = req.body.tipo_sanguineo,
-        data_incorporacao = req.body.data_incorporacao,
-        data_utima_promocao = req.body.data_utima_promocao,
-        numero_calca = req.body.numero_calca,
-        numero_coturno = req.body.numero_coturno,
-        suadeira = req.body.suadeira,
-        gandola = req.body.gandola,
-        gorro = req.body.grro,
-        funcao = req.body.funcao,
-        situacao_atual = req.body.situacao_atual,
-        banco = req.body.banco,
-        agencia = req.body.agencia,
-        conta = req.body.conta,
-        avatar_path = file.filename,
-        email = req.body.email,
-        numero_telefone = req.body.numero_telefone,
-        posto_graduacao = req.body.posto_graduacao,
-    ]  
-
-
-
-
-    //await console.log(1212, JSON.parse(req.body.userData));
-
-    */
-
     const senhaIn = JSON.parse(req.body.userData).senha
     let salt = bcrypt.genSaltSync(8)
     let hash = bcrypt.hashSync(senhaIn, salt)
     
     const file = req.file
-    console.log('File:', file.filename);
+    console.log('File:', file.filename)
+    console.log(JSON.parse(req.body.userData));
 
     const valuesPolicial = [
         nome_completo = JSON.parse(req.body.userData).nome_completo,
@@ -149,11 +89,11 @@ exports.postOfficers = async function ( req, res, err){
     INSERT INTO policiais (
         nome_completo, senha, id_policial, matricula, nome_de_guerra, logradouro, 
         numero_casa_apto, complemento, bairro, cidade, estado,  
-        cep,  escolaridade,  estado_civil,  tipo_sanguineo,  
+        cep, rg, data_expedicao, org_emissor, cpf, numero_titulo, 
+        zona, secao, rg_militar, numero_cnh, validade_cnh, escolaridade,  estado_civil,  tipo_sanguineo,  
         data_incorporacao,  data_utima_promocao,  numero_calca,  
         numero_coturno,  suadeira,  gandola,  gorro,  funcao, 
-        situacao_atual, rg, data_expedicao, org_emissor, cpf, numero_titulo, 
-        zona, secao, rg_militar, numero_cnh, validade_cnh, banco, agencia, conta, avatar_path,
+        situacao_atual,  banco, agencia, conta, avatar_path,
         email, numero_telefone, posto_graduacao, batalhao
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
@@ -166,7 +106,7 @@ exports.postOfficers = async function ( req, res, err){
         return res.status(201).send('policial cadastrado dom sucesso.')
     } catch (error) {
         console.log(error);
-        return res.status(500).send('Erro: Tente Novamente')
+        return res.status(500).send({erro: 'Tente Novamente', error})
     }
 
 }
