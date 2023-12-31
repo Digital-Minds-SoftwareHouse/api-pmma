@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 exports.login = async function(req, res, err){
+    console.log("ROTA DE LOGIN");
     const credentials = [
         id_policial = req.body.id_policial,
         senha = req.body.senha
