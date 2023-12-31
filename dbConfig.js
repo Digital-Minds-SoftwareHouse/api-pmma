@@ -5,7 +5,6 @@ let postgres = new Pool({
     host: process.env.HOST,
     port: process.env.PORT_DB,
     user: process.env.USER,
-    ssl: true,
     password: process.env.PASSWORD_DB,
     database: process.env.DATA_BASE,
     connectionTimeoutMillis: 75000,
