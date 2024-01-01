@@ -40,5 +40,24 @@ postgres = new Pool({
     maxUses: 100
 
 
+postgres = new Pool({
+    host: process.env.HOST,
+    port: process.env.PORT_DB,
+    user: process.env.USER,
+    password: process.env.PASSWORD_DB,
+    database: process.env.DATA_BASE,
+    connectionTimeoutMillis: 75000,
+    idleTimeoutMillis: 75000,
+    maxUses: 80
+
+
+
+
+
+
+
+
+
+
 
 */

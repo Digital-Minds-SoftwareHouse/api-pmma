@@ -29,7 +29,7 @@ exports.getAllReports = async function (req, res, err){
             r.motivation_approach,
             r.origin,
             COALESCE( json_agg(DISTINCT n.*), '[]'::json ) AS natures,
-            COALESCE( json_agg(DISTINCT e.*), '[]'::json ) AS envolveds,
+            COALESCE( json_agg(DISTINCT e.*), '[]'::json ) AS envolved,
             COALESCE( json_agg(DISTINCT o.*), '[]'::json ) AS objects,
             COALESCE( json_agg(DISTINCT dr.*), '[]'::json ) AS detention_responsible,
             COALESCE( json_agg(DISTINCT ps.*), '[]'::json ) AS police_staff
@@ -53,52 +53,119 @@ exports.getSpecificReport = async function (req, res, err){
     let battalionParam = new String(req.params.battalion)
     let reportNumberParam = req.params.number_report
 
-    console.log('ROTA DE OCORRENCIAS');
-    const response = (await postgres.query(`
-        SELECT
-            r.id,
-            r.number_report,
-            r.date_time,
-            r.report_city,
-            r.police_garrison,
-            r.type_report,
-            r.report_address,
-            r.report_district,
-            r.cep,
-            r.police_garrison,
-            r.latitude,
-            r.longitude,
-            r.history,
-            r.area,
-            r.battalion,
-            r.punctuaction,
-            r.use_handcuffs,
-            r.justify_handcuffs,
-            r.comments,
-            r.upm_contact,
-            r.motivation_approach,
-            r.origin,
-            COALESCE( json_agg(DISTINCT n.*), '[]'::json ) AS natures,
-            COALESCE( json_agg(DISTINCT e.*), '[]'::json ) AS envolveds,
-            COALESCE( json_agg(DISTINCT o.*), '[]'::json ) AS objects,
-            COALESCE( json_agg(DISTINCT dr.*), '[]'::json ) AS detention_responsible,
-            COALESCE( json_agg(DISTINCT ps.*), '[]'::json ) AS police_staff
-        FROM report r
-        LEFT JOIN report_staff rs ON r.number_report = rs.number_report
-        LEFT JOIN police_staff ps ON rs.staff_id = ps.id
-        LEFT JOIN report_nature rn ON r.number_report = rn.number_report
-        LEFT JOIN natures n ON rn.nature_id = n.id
-        LEFT JOIN report_objects ro ON r.number_report = ro.number_report
-        LEFT JOIN objects o ON ro.object_id = o.id
-        LEFT JOIN report_detention_responsible rdr ON r.number_report = rdr.number_report
-        LEFT JOIN detention_responsible dr ON rdr.detention_responsible_id = dr.id
-        LEFT JOIN report_envolved re ON r.number_report = re.number_report
-        LEFT JOIN envolved e ON re.envolved_id = e.id
-        WHERE r.number_report = '${reportNumberParam}' AND r.battalion = '26 BPM'
-        GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;
-    `)).rows
 
-    res.status(302).send(response)
+    const reports = (await postgres.query(` SELECT * FROM report WHERE  number_report = '${reportNumberParam}'`)).rows
+    if(reports.length == 0) {
+        return res.status(404).send({message: "ROP não encontrado ou não registrado"})
+    }else if (reports.length != 0){
+        const envolveds = (await postgres.query(`
+            SELECT 
+                envolved.id,
+                envolved.name,
+                envolved.type_of_involvement,
+                envolved.birthdate,
+                envolved.mother,
+                envolved.sex,
+                envolved.gender,
+                envolved.address,
+                envolved.city,
+                envolved.district,
+                envolved.naturalness,
+                envolved.race_color,
+                envolved.phone_number,
+                envolved.rg,
+                envolved.cpf,
+                envolved.particular_signs,
+                envolved.bodily_injuries,
+                envolved.profession,
+                envolved.health_condition
+            FROM envolved
+            LEFT join report_envolved ON report_envolved.envolved_id = envolved.id
+            WHERE report_envolved.number_report = '${reportNumberParam}'    
+        `)).rows
+        const objects = (await postgres.query(`
+            SELECT 
+                objects.id,
+                objects.type,
+                objects.subtype,
+                objects.description,
+                objects.quantity,
+                objects.serial_number,
+                objects.chassis,
+                objects.brand,
+                objects.model,
+                objects.plate,
+                objects.color,
+                objects.stolen_recovered,
+                objects.caliber
+            FROM objects
+            LEFT JOIN report_objects ON report_objects.object_id = objects.id
+            WHERE report_objects.number_report = '${reportNumberParam}'
+        
+        `)).rows
+        const natures = (await postgres.query(`
+            SELECT 
+                natures.id,
+                natures.nature,
+                natures.punctuaction
+            FROM natures
+            LEFT JOIN report_nature ON report_nature.nature_id = natures.id
+            WHERE report_nature.number_report = '${reportNumberParam}'    
+        `)).rows
+        const police_staff = (await postgres.query(`
+            SELECT 
+                police_staff.id,
+                police_staff.war_name,
+                police_staff.graduation_rank,
+                police_staff.id_policial,
+                police_staff.staff_function,
+                police_staff.cpf
+            FROM police_staff
+            LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
+            WHERE report_staff.number_report = '${reportNumberParam}'
+        `)).rows
+        const detention_responsible = (await postgres.query(`
+            SELECT 
+                detention_responsible.id,
+                detention_responsible.war_name,
+                detention_responsible.graduation_rank,
+                detention_responsible.id_policial,
+                detention_responsible.cpf
+            FROM detention_responsible
+            LEFT JOIN report_detention_responsible ON report_detention_responsible.detention_responsible_id = detention_responsible.id
+            WHERE report_detention_responsible.number_report = '${reportNumberParam}'
+        `)).rows
+        const response ={ 
+            number_report: reports[0]?.number_report,
+            type_report: reports[0]?.type_report,
+            date_time: reports[0]?.date_time,
+            report_address: reports[0]?.report_address,
+            report_district: reports[0]?.report_district,
+            report_city: reports[0]?.report_city,
+            cep: reports[0]?.cep,
+            police_garrison: reports[0]?.police_garrison,
+            latitude: reports[0]?.latitude,
+            longitude: reports[0]?.longitude,
+            history: reports[0]?.history,
+            area: reports[0]?.area,
+            battalion: reports[0]?.battalion,
+            punctuaction: reports[0]?.punctuaction,
+            use_handcuffs : reports[0]?.use_handcuffs,
+            justify_handcuffs : reports[0]?.justify_handcuffs,
+            comments : reports[0]?.comments,
+            upm_contact : reports[0]?.upm_contact,
+            motivation_approach : reports[0]?.motivation_approach,
+            origin : reports[0]?.origin,
+            natures: natures,
+            envolveds: envolveds,
+            objects: objects,
+            detention_responsible : detention_responsible,
+            police_staff: police_staff,
+        }
+        console.log(response);
+        res.status(302).send(response)
+    
+    }
 }
 exports.postReport = async function (req, res, err){
     console.log('rota de post')
@@ -189,7 +256,7 @@ exports.postReport = async function (req, res, err){
         for(let i = 0; i < req.body.envolveds.length; i++){
             const envolveds_values = [
                 name = req.body.envolveds[i].name,
-                type_of_involvement = req.body.envolveds[i].type_of_envolvement,
+                type_of_involvement = req.body.envolveds[i].type_of_involvement,
                 birthdate = req.body.envolveds[i].birthdate,
                 mother = req.body.envolveds[i].mother,
                 sex = req.body.envolveds[i].sex,
@@ -313,11 +380,11 @@ exports.postReport = async function (req, res, err){
     }
     try {
         await postgres.query(general_information_query, generalInformationValue)
-        nature_register()
-        envolveds_register()
-        objects_register()
-        detention_responsible_register()
-        staff_register()
+        await nature_register()
+        await envolveds_register()
+        await objects_register()
+        await detention_responsible_register()
+        await staff_register()
         res.status(201).send({message: 'report register success!'})        
     } 
     catch (error) {
@@ -326,8 +393,10 @@ exports.postReport = async function (req, res, err){
     }
 }
 exports.deleteReport = async function(req, res, err){
+
     try {
     const number_report = req.body.number_report
+    console.log(number_report);
     const nature_key = (await postgres.query(`
         SELECT 
             natures.id
@@ -356,22 +425,51 @@ exports.deleteReport = async function(req, res, err){
         LEFT JOIN report_staff ON report_staff.staff_id = police_staff.id
         WHERE report_staff.number_report = '${number_report}'
     `)).rows
+    const responsible_key = (await postgres.query(`
+        SELECT 
+            detention_responsible.id
+        FROM detention_responsible
+        LEFT JOIN report_detention_responsible ON report_detention_responsible.detention_responsible_id = detention_responsible.id
+        WHERE report_detention_responsible.number_report = '${number_report}'
+    `)).rows
+
+    async function deleteRelationship(){
+        await postgres.query(`delete from report_detention_responsible where number_report = '${number_report}'`).then(console.log("del rel responsavel"))
+        await postgres.query(`delete from report_envolved where number_report = '${number_report}'`).then(console.log("del rel envolved"))
+        await postgres.query(`delete from report_nature where number_report = '${number_report}'`).then(console.log("del rel nature"))
+        await postgres.query(`delete from report_objects where number_report = '${number_report}'`).then(console.log("del rel objeto"))
+        await postgres.query(`delete from report_staff where number_report = '${number_report}'`).then(console.log("del rel satff"))
+    }
+
+    await deleteRelationship()
 
     for(let i = 0; i < nature_key?.length; i++){
         await postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i]?.id}`)
+        console.log("passei");
     }
     for(let j = 0; j < envolved_key?.length; j++){
         await postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j]?.id}`)
+        console.log("passei 2");
     }
     for(let k = 0; k < object_key?.length; k++){
         await postgres.query(`DELETE FROM objects WHERE id = ${object_key[k]?.id}`)
+        console.log("passei 3");
     }
     for(let l = 0; l < staff_key?.length; l++){
         await postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l]?.id}`)
+        console.log("passei 4");
     }
-    postgres.query(`DELETE FROM report WHERE number_report = '${number_report}'`)
+    for(let l = 0; l < staff_key?.length; l++){
+        console.log(responsible_key[0]);
+        await postgres.query(`DELETE FROM detention_responsible WHERE id = ${responsible_key[l]?.id}`)
+        console.log("passei 5");
+    }
+    console.log("antes do relatório");
+    await postgres.query(`DELETE FROM report WHERE number_report = '${number_report}'`)
+    console.log('apagou');
         res.status(201).send({message: "Deleting report success!", id: number_report})
     } catch (error) {
+        console.log(error);
         res.status(500).send({message: "Error deleting report!"})
     }
 }
@@ -387,21 +485,30 @@ exports.putReport = async function (req, res, err){
         const staff_key = (await postgres.query(`SELECT * FROM report_staff WHERE number_report = '${number_report}'`)).rows
         const detention_responsible_key = (await postgres.query(`SELECT * FROM report_detention_responsible WHERE number_report = '${number_report}'`)).rows
 
-        
+        async function deleteRelationship(){
+            await postgres.query(`delete from report_detention_responsible where number_report = '${number_report}'`).then(console.log("del rel responsavel"))
+            await postgres.query(`delete from report_envolved where number_report = '${number_report}'`).then(console.log("del rel envolved"))
+            await postgres.query(`delete from report_nature where number_report = '${number_report}'`).then(console.log("del rel nature"))
+            await postgres.query(`delete from report_objects where number_report = '${number_report}'`).then(console.log("del rel objeto"))
+            await postgres.query(`delete from report_staff where number_report = '${number_report}'`).then(console.log("del rel satff"))
+        }    
+        await deleteRelationship()
+
+
         for(let i = 0; i < nature_key.length; i++){
-            postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i].nature_id}`).then(console.log("natureza deletada"))
+            await postgres.query(`DELETE FROM natures WHERE id = ${nature_key[i].nature_id}`).then(console.log("natureza deletada"))
         }
         for(let j = 0; j < envolved_key.length; j++){
-            postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j].envolved_id}`).then(console.log("envolved deletada"))
+            await postgres.query(`DELETE FROM envolved WHERE id = ${envolved_key[j].envolved_id}`).then(console.log("envolved deletada"))
         }
         for(let k = 0; k < object_key.length; k++){
-            postgres.query(`DELETE FROM objects WHERE id = ${object_key[k].object_id}`).then(console.log("object deletada"))
+            await postgres.query(`DELETE FROM objects WHERE id = ${object_key[k].object_id}`).then(console.log("object deletada"))
         }
         for(let l = 0; l < staff_key.length; l++){
-            postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`).then(console.log("staff deletada"))
+            await postgres.query(`DELETE FROM police_staff WHERE id = ${staff_key[l].staff_id}`).then(console.log("staff deletada"))
         }
         for(let m = 0; m < detention_responsible_key.length; m++){
-            postgres.query(`DELETE FROM detention_responsible WHERE id = ${detention_responsible_key[m].detention_responsible_id}`).then(console.log("detention deletada"))
+            await postgres.query(`DELETE FROM detention_responsible WHERE id = ${detention_responsible_key[m].detention_responsible_id}`).then(console.log("detention deletada"))
         } 
     }
     async function nature_register (){        
@@ -427,7 +534,7 @@ exports.putReport = async function (req, res, err){
         for(let i = 0; i < req.body.envolveds.length; i++){
             const envolveds_values = [
                 name = req.body.envolveds[i].name,
-                type_of_involvement = req.body.envolveds[i].type_of_envolvement,
+                type_of_involvement = req.body.envolveds[i].type_of_involvement,
                 birthdate = req.body.envolveds[i].birthdate,
                 mother = req.body.envolveds[i].mother,
                 sex = req.body.envolveds[i].sex,
@@ -589,15 +696,15 @@ exports.putReport = async function (req, res, err){
         WHERE number_report = $1
     `
     try {
-        deleteRegisters()
+        await deleteRegisters()
         await deleteRelationship.deleteRelationship(number_report)
-        nature_register()
-        envolveds_register()
-        objects_register()
-        detention_responsible_register()
-        staff_register()
+        await nature_register()
+        await envolveds_register()
+        await objects_register()
+        await detention_responsible_register()
+        await staff_register()
         postgres.query(report_update_query, report_update_values).then(
-            console.log({message: "REPORT ACTUALIZED SUCCESS!\n"}),
+            console.log({message: "REPORT ACTUALIZED SUCCESS!"}),
             res.status(201).send({message: 'reportt actualized success!'})
         )        
     } catch (error) {

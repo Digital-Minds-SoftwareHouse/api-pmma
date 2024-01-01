@@ -101,7 +101,7 @@ exports.pdfReportDefinitions = function(report ){
                         [{text: `NATURAL DE: ${item.naturalness ? item.naturalness.toUpperCase() : "- - - - - - - - -"}`},{text: `ENDEREÇO: ${item.address ? item.address.toUpperCase() : "- - - - - - - - -" }`},{text: `CIDADE: ${item.city ? item.city.toUpperCase() : "- - - - - - - - -"}`}],
                         [{text: `SINAIS PARTICULARES: ${item.particular_signs ? item.particular_signs : 'SEM SINAIS PARTICULARES' }`, colSpan:3}],
                         [{text: `ESTADO DE SAÚDE: ${item.health_condition}`, colSpan:3}],
-                        [{text: `LESÕES CORPORAIS: ${item.bodily_injuries }`, colSpan:3}],
+                        [{text: `LESÕES CORPORAIS: ${item.bodily_injuries ? item.bodily_injuries : "- - - - - - - - -"  }`, colSpan:3}],
                 ]
                 },
                 layout:{
@@ -121,7 +121,7 @@ exports.pdfReportDefinitions = function(report ){
                     [{text: `ENDEREÇO DA OCORRÊNCIA: ${data?.report_address.toUpperCase()} - ${data?.report_district.toUpperCase()} `, colSpan:2}],
                     [{text: `COORDENADAS DE GEOLOCALIZAÇÃO`, colSpan:2}],
                     [{text: `LATITUDE: ${data?.latitude}`},{text: `LONGITUDE: ${data?.longitude}`}],
-                    [{text: `USO DE ALGEMA: ${data?.use_handcuffs} `, colSpan:2}],
+                    [{text: `USO DE ALGEMA: ${ data?.use_handcuffs == null ?  "SEM USO DE ALGEMAS" : data?.use_handcuffs} `, colSpan:2}],
             ]
             },
             layout:{
@@ -413,7 +413,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['44% ', '*'],
                     body:[
-                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} - ID: ${item?.id_policial} - CPF: ${item?.cpf}`}],
                         
                 ]
                 },
@@ -432,7 +432,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['44% ', '*'],
                     body:[
-                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} - ID: ${item?.id_policial} - CPF: ${item?.cpf}`}],
                         
                 ]
                 },
@@ -451,7 +451,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['44% ', '*'],
                     body:[
-                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} ${item?.id_policial}`}],
+                        [{text: item?.staff_function, bold:true }, {text: `${item?.graduation_rank} - ${item?.war_name} - ID: ${item?.id_policial} - CPF: ${item?.cpf}`}],
                         
                 ]
                 },

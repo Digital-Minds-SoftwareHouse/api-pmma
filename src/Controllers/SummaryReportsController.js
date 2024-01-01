@@ -2,13 +2,13 @@ const postgres = require('../../dbConfig');
 
 exports.getSummaryAllReports = async function (req, res, err){
     const query = `
-    SELECT r.id, r.number_report, r.battalion ,r.date_time, r.report_city, r.police_garrison, ps.id_policial, string_agg(n.nature, ', ') AS naturezas
+    SELECT r.id, r.number_report, r.battalion ,r.date_time, r.report_city, r.police_garrison, string_agg(n.nature, ', ') AS naturezas
     FROM report r
-    JOIN report_staff rs ON r.number_report = rs.number_report
-    JOIN police_staff ps ON rs.staff_id = ps.id
-    JOIN report_nature rn ON r.number_report = rn.number_report
-    JOIN natures n ON rn.nature_id = n.id
-    GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison, ps.id_policial;
+    LEFT JOIN report_staff rs ON r.number_report = rs.number_report
+    LEFT JOIN police_staff ps ON rs.staff_id = ps.id
+    LEFT JOIN report_nature rn ON r.number_report = rn.number_report
+    LEFT JOIN natures n ON rn.nature_id = n.id
+    GROUP BY r.id, r.number_report, r.date_time, r.report_city, r.police_garrison;
     `
     const query2 = `SELECT * FROM report`
     
