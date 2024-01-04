@@ -1,6 +1,7 @@
 const postgres = require('../../dbConfig')
 const MailSender = require('../Services/MailSender')
 const MailRecoveryModel = require('../Functions/RecoveryPassModel')
+const bcrypt = require('bcryptjs');
 
 //411983
 
@@ -48,6 +49,36 @@ exports.postRedefineConfirmCode = async function (req, res, err){
         }
     } catch (error) {
         res.status(500).send({error: true, message: 'CODIGO INCORRETO INFORMADO' })
+    }
+
+}
+exports.postRedefinePass = async function (req, res, err){
+    console.log("Redefinição");
+    const id_policial = req?.body.id_policial
+    const new_password = req?.body.new_password
+
+    if(new_password === "" || new_password === undefined || new_password === null ){
+        return res.status(500).send("Erro, nenhum dado recebido")
+    }if(new_password != "" && new_password != undefined && new_password != null ){
+        try {
+            let salt = bcrypt.genSaltSync(8)
+            let hash = bcrypt.hashSync(new_password, salt)
+            
+            console.log('Passou o salt');
+
+            const query1 = `SELECT * FROM policiais WHERE id_policial = ${id_policial}`
+            const queryUpdatePass = `UPDATE policiais SET senha = $1 WHERE id_policial = ${id_policial} `
+        
+            const response = (await postgres.query(queryUpdatePass, [hash]).then(console.log("Senha Modificada")))
+
+            res.status(201).send({message: "Senha redefinida com sucesso"})
+            
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({message: "Erro ao redefinir senha."})
+            
+        }
+
     }
 
 }

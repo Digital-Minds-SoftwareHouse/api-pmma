@@ -5,6 +5,6 @@ const RedefinirSenhaController = require('../Controllers/RedefinirSenhaControlle
 
 router.post("/send-id", RedefinirSenhaController.postRedefineSendId)
 router.post("/send-verification-code", RedefinirSenhaController.postRedefineConfirmCode)
-router.post("/redefine-password", )
+router.post("/redefine-password", RedefinirSenhaController.postRedefinePass )
 
 module.exports = router

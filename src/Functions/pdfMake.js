@@ -331,7 +331,7 @@ exports.pdfReportDefinitions = function(report ){
                 table:{
                     widths: ['15% ', '*'],
                     body:[
-                        [{text: `TIPO: ${item?.type}` }, {text: `TIPO DE ARMA.: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
+                        [{text: `TIPO: ${item?.type}` }, {text: `DESCR.: ${item?.description ? item?.description.toUpperCase() : "- - - - - - - - -" }`}],
                         
                 ]
                 },

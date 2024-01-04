@@ -22,7 +22,6 @@ exports.login = async function(req, res, err){
     `
     try {
         const response = await postgres.query(query)
-        console.log(response.rowCount);
         const responseId = await  postgres.query(querySelecionaPolicial)
         if(responseId.rowCount === 0){
             return res.status(500).send({status: 'error', message: 'CREDENCIAIS DE LOGIN INVÁLIDAS'})
@@ -42,6 +41,7 @@ exports.login = async function(req, res, err){
                         posto_graduacao: responsePolicialInformações.rows[0].posto_graduacao,
                         avatar: responsePolicialInformações.rows[0].avatar_path,
                         battalion: responsePolicialInformações.rows[0].batalhao,
+                        function: responsePolicialInformações.rows[0].funcao ,
                         incidentsAttended: response.rowCount,
                         generalScore: 100,
                         availableScore: 100

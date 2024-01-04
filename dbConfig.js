@@ -51,7 +51,15 @@ postgres = new Pool({
     maxUses: 80
 
 
-
+postgres = new Pool({
+    host: 'monorail.proxy.rlwy.net:40808',
+    port: 5432,
+    user: 'postgres',
+    password: '35DAEc33AacaFAdAffFd4Ce4eeEecg66',
+    ssl:false,
+    connectionTimeoutMillis: 75000,
+    idleTimeoutMillis: 75000,
+    maxUses: 100
 
 
 
